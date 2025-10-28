@@ -15,10 +15,30 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       instituicaoId: instituicaoId || 'undefined'
     });
 
+    // Buscar instituição por código de acesso ou ID
+    let instituicao;
+    if (instituicaoId) {
+      // Verificar se é um código de acesso (6 caracteres) ou ObjectId
+      if (instituicaoId.length === 6) {
+        instituicao = await Instituicao.findOne({ codigoAcesso: instituicaoId.toUpperCase() });
+      } else {
+        instituicao = await Instituicao.findById(instituicaoId);
+      }
+    }
+
+    if (!instituicao) {
+      console.log('❌ DEBUG LOGIN - Instituição não encontrada');
+      res.status(401).json({
+        success: false,
+        message: 'Instituição não encontrada'
+      });
+      return;
+    }
+
     // Buscar usuário
     const user = await Usuario.findOne({ 
       email: email.toLowerCase(),
-      instituicaoId,
+      instituicaoId: instituicao._id,
       ativo: true 
     }).populate('instituicaoId');
 

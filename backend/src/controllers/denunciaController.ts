@@ -12,6 +12,7 @@ export const createDenuncia = async (req: IAuthRequest, res: Response): Promise<
     
     // Adicionar campos obrigatórios
     denunciaData.nivelRisco = 'MEDIO'; // Valor padrão, será calculado pela IA futuramente
+    denunciaData.status = 'AGUARDANDO_TRIAGEM'; // Status inicial para todas as denúncias
     
     // Para denúncias públicas, usar dados padrão
     if (req.user) {
@@ -19,6 +20,19 @@ export const createDenuncia = async (req: IAuthRequest, res: Response): Promise<
       denunciaData.usuarioCriadorId = new Types.ObjectId(req.user.id);
       denunciaData.instituicaoOrigemId = new Types.ObjectId(req.user.instituicaoId);
       denunciaData.instituicoesComAcesso = [new Types.ObjectId(req.user.instituicaoId)];
+      
+      // Buscar instituição para verificar o tipo
+      const { Instituicao } = await import('../models');
+      const instituicaoOrigem = await Instituicao.findById(req.user.instituicaoId);
+      
+      // Se for uma escola, submeter automaticamente para a PGR
+      if (instituicaoOrigem?.tipo === 'ESCOLA') {
+        const pgr = await Instituicao.findOne({ tipo: 'AUTORIDADE' });
+        if (pgr) {
+          denunciaData.status = 'SUBMETIDO_AUTORIDADE';
+          denunciaData.instituicoesComAcesso.push(pgr._id);
+        }
+      }
     } else {
       // Denúncia pública - buscar instituição coordenadora
       const { Instituicao } = await import('../models');
@@ -98,10 +112,19 @@ export const getAllDenuncias = async (req: IAuthRequest, res: Response): Promise
     const instituicaoId = req.user!.instituicaoId;
 
     // Filtros baseados no perfil
-    if (perfil === 'COORDENADOR_ASSOCIACAO') {
-      // Coordenador vê todas as denúncias
+    if (perfil === 'GESTOR_SISTEMA') {
+      // HUMAI vê todas as denúncias
+    } else if (perfil === 'AUTORIDADE') {
+      // PGR vê apenas denúncias submetidas
+      filter.status = { $in: [
+        'SUBMETIDO_AUTORIDADE',
+        'EM_INVESTIGACAO',
+        'ENCAMINHADO_JUSTICA',
+        'CASO_ENCERRADO',
+        'ARQUIVADO'
+      ]};
     } else {
-      // Outros perfis veem apenas denúncias da sua instituição ou com acesso
+      // OPERADOR e ANALISTA veem apenas da sua instituição
       filter.$or = [
         { instituicaoOrigemId: instituicaoId },
         { instituicoesComAcesso: instituicaoId }
@@ -567,30 +590,30 @@ export const getStatusPublicoDenuncia = async (req: Request, res: Response): Pro
       },
       {
         nome: 'Análise Inicial',
-        status: ['SUSPEITA', 'PROVAVEL', 'EM_INVESTIGACAO_INTERNA', 'SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === StatusDenuncia.INCOMPLETA ? 'em_andamento' : 'pendente',
-        data: denuncia.status === StatusDenuncia.INCOMPLETA ? denuncia.dataUltimaAtualizacao : undefined,
+        status: ['EM_ANALISE', 'SUBMETIDO_AUTORIDADE', 'EM_INVESTIGACAO', 'ENCAMINHADO_JUSTICA', 'CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? 'concluida' : 
+               denuncia.status === StatusDenuncia.AGUARDANDO_TRIAGEM ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.AGUARDANDO_TRIAGEM ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
         nome: 'Investigação',
-        status: ['EM_INVESTIGACAO_INTERNA', 'SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === StatusDenuncia.PROVAVEL ? 'em_andamento' : 'pendente',
-        data: denuncia.status === StatusDenuncia.PROVAVEL ? denuncia.dataUltimaAtualizacao : undefined,
+        status: ['EM_INVESTIGACAO', 'ENCAMINHADO_JUSTICA', 'CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? 'concluida' : 
+               denuncia.status === StatusDenuncia.EM_ANALISE ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.EM_ANALISE ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
         nome: 'Coordenação Interinstitucional',
-        status: ['SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === StatusDenuncia.EM_INVESTIGACAO_INTERNA ? 'em_andamento' : 'pendente',
-        data: denuncia.status === StatusDenuncia.EM_INVESTIGACAO_INTERNA ? denuncia.dataUltimaAtualizacao : undefined,
+        status: ['ENCAMINHADO_JUSTICA', 'CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? 'concluida' : 
+               denuncia.status === StatusDenuncia.EM_INVESTIGACAO ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.EM_INVESTIGACAO ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
         nome: 'Conclusão',
-        status: ['ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               ['SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS'].includes(denuncia.status) ? 'em_andamento' : 'pendente',
-        data: ['ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? denuncia.dataUltimaAtualizacao : undefined,
+        status: ['CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? 'concluida' : 
+               ['ENCAMINHADO_JUSTICA'].includes(denuncia.status) ? 'em_andamento' : 'pendente',
+        data: ['CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       }
     ];

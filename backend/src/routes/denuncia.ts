@@ -16,8 +16,8 @@ import { createDenunciaSchema, updateStatusSchema } from '../middleware/validati
 
 const router = Router();
 
-// POST /api/denuncias - Criar denúncia (público)
-router.post('/', validate(createDenunciaSchema), createDenuncia);
+// POST /api/denuncias - Criar denúncia (autenticado)
+router.post('/', authenticateToken, validate(createDenunciaSchema), createDenuncia);
 
 // GET /api/denuncias - Listar denúncias (autenticado)
 router.get('/', authenticateToken, getAllDenuncias);

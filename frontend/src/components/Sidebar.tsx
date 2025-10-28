@@ -33,7 +33,6 @@ export default function Sidebar({ isOpen, onClose, userProfile }: SidebarProps) 
     ];
 
     switch (userProfile) {
-      case PerfilUsuario.AGENTE_COMUNITARIO:
       case PerfilUsuario.OPERADOR:
         return [
           ...baseItems,
@@ -46,36 +45,25 @@ export default function Sidebar({ isOpen, onClose, userProfile }: SidebarProps) 
           ...baseItems,
           { name: 'Análise Pendente', href: '/dashboard/analise/pendentes', icon: AlertTriangle },
           { name: 'Meus Casos', href: '/dashboard/analise/minhas', icon: ClipboardList },
+          { name: 'Submeter Casos', href: '/dashboard/analise/submeter', icon: Shield },
         ];
 
-      case PerfilUsuario.SUPERVISOR:
+      case PerfilUsuario.AUTORIDADE:
         return [
           ...baseItems,
-          { name: 'Todos os Casos', href: '/dashboard/supervisao/todos', icon: Eye },
-          { name: 'Prontos para Encaminhar', href: '/dashboard/supervisao/prontos', icon: UserCheck },
+          { name: 'Casos Submetidos', href: '/dashboard/autoridade/submetidos', icon: Eye },
+          { name: 'Em Investigação', href: '/dashboard/autoridade/investigacao', icon: AlertTriangle },
+          { name: 'Atualizar Status', href: '/dashboard/autoridade/atualizar', icon: UserCheck },
         ];
 
-      case PerfilUsuario.COORDENADOR_LOCAL:
+      case PerfilUsuario.GESTOR_SISTEMA:
         return [
           ...baseItems,
-          { name: 'Casos da Instituição', href: '/dashboard/coordenacao-local/casos', icon: Building2 },
-          { name: 'Atribuir Investigadores', href: '/dashboard/coordenacao-local/atribuir', icon: Users },
-          { name: 'Equipes', href: '/dashboard/coordenacao-local/equipes', icon: Users },
-        ];
-
-      case PerfilUsuario.INVESTIGADOR:
-        return [
-          ...baseItems,
-          { name: 'Meus Casos', href: '/dashboard/investigacao/meus-casos', icon: ClipboardList },
-        ];
-
-      case PerfilUsuario.COORDENADOR_ASSOCIACAO:
-        return [
-          ...baseItems,
-          { name: 'Atribuir Casos', href: '/dashboard/coordenacao/atribuir', icon: Shield },
-          { name: 'Monitoramento', href: '/dashboard/coordenacao/monitoramento', icon: BarChart3 },
-          { name: 'Transferências', href: '/dashboard/coordenacao/transferencias', icon: Users },
-          { name: 'Dashboard Global', href: '/dashboard/coordenacao/global', icon: BarChart3 },
+          { name: 'Todas as Denúncias', href: '/dashboard/gestao/denuncias', icon: FileText },
+          { name: 'Instituições', href: '/dashboard/gestao/instituicoes', icon: Building2 },
+          { name: 'Usuários', href: '/dashboard/gestao/usuarios', icon: Users },
+          { name: 'Relatórios', href: '/dashboard/gestao/relatorios', icon: BarChart3 },
+          { name: 'Configurações', href: '/dashboard/gestao/configuracoes', icon: Settings },
         ];
 
       default:
@@ -87,7 +75,6 @@ export default function Sidebar({ isOpen, onClose, userProfile }: SidebarProps) 
 
   // Adicionar itens comuns a todos os perfis
   const commonItems = [
-    { name: 'Rastreamento', href: '/rastreio', icon: Search },
     { name: 'Repositório Público', href: '/repositorio', icon: FileText },
   ];
 

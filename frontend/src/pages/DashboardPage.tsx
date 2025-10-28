@@ -1,6 +1,7 @@
 import { useAuthStore } from '@/store/authStore';
 import { PerfilUsuario } from '@/types';
 import { Link } from 'react-router-dom';
+import { useDenuncias, useDenunciaStats } from '@/hooks/useDenuncias';
 import { 
   FileText, 
   AlertTriangle, 
@@ -8,48 +9,21 @@ import {
   Clock, 
   CheckCircle,
   TrendingUp,
-  Plus
+  Plus,
+  Loader2
 } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
-
-  // Dados mockados para demonstração
-  const stats = {
-    totalDenuncias: 1247,
-    denunciasPendentes: 23,
-    casosAtivos: 156,
-    casosResolvidos: 1068,
-    tempoMedioResolucao: 7.2,
-    taxaResolucao: 89.2,
-  };
-
-  const recentDenuncias = [
-    {
-      id: '1',
-      codigo: 'HUMAI-ABC123',
-      descricao: 'Caso suspeito de tráfico sexual em Maputo',
-      status: 'EM_ANALISE',
-      dataRegistro: '2024-01-15T10:30:00Z',
-      nivelRisco: 'ALTO',
-    },
-    {
-      id: '2',
-      codigo: 'HUMAI-DEF456',
-      descricao: 'Denúncia de trabalho forçado em Nampula',
-      status: 'EM_INVESTIGACAO',
-      dataRegistro: '2024-01-14T15:45:00Z',
-      nivelRisco: 'CRITICO',
-    },
-    {
-      id: '3',
-      codigo: 'HUMAI-GHI789',
-      descricao: 'Suspeita de adoção ilegal em Beira',
-      status: 'PENDENTE',
-      dataRegistro: '2024-01-13T09:15:00Z',
-      nivelRisco: 'MEDIO',
-    },
-  ];
+  
+  // Buscar dados reais das denúncias
+  const { denuncias: recentDenuncias, isLoading: isLoadingDenuncias } = useDenuncias({ 
+    limit: 5,
+    sortBy: 'dataRegistro',
+    sortOrder: 'desc'
+  });
+  
+  const { stats, isLoading: isLoadingStats } = useDenunciaStats();
 
   const getDashboardContent = () => {
     switch (user?.perfil) {
@@ -66,7 +40,9 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Minhas Denúncias</p>
-                      <p className="text-2xl font-bold text-gray-900">12</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.totalDenuncias}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -80,7 +56,9 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Pendentes</p>
-                      <p className="text-2xl font-bold text-gray-900">3</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.denunciasPendentes}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -94,7 +72,9 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Resolvidos</p>
-                      <p className="text-2xl font-bold text-gray-900">9</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.casosResolvidos}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -120,24 +100,57 @@ export default function DashboardPage() {
                 <h3 className="text-lg font-semibold text-gray-900">Denúncias Recentes</h3>
               </div>
               <div className="card-body">
-                <div className="space-y-4">
-                  {recentDenuncias.map((denuncia) => (
-                    <div key={denuncia.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{denuncia.codigo}</p>
-                        <p className="text-sm text-gray-600">{denuncia.descricao}</p>
+                {isLoadingDenuncias ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-unodc-blue-600" />
+                    <span className="ml-2 text-gray-600">Carregando denúncias...</span>
+                  </div>
+                ) : recentDenuncias.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Nenhuma denúncia encontrada</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentDenuncias.map((denuncia) => (
+                      <div key={denuncia._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3">
+                            <span className="text-sm font-medium text-unodc-blue-600">
+                              {denuncia.codigoRastreio}
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              denuncia.status === 'SUSPEITA' ? 'bg-yellow-100 text-yellow-800' :
+                              denuncia.status === 'EM_INVESTIGACAO_INTERNA' ? 'bg-blue-100 text-blue-800' :
+                              denuncia.status === 'INCOMPLETA' ? 'bg-orange-100 text-orange-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {denuncia.status.replace('_', ' ')}
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              denuncia.nivelRisco === 'ALTO' ? 'bg-red-100 text-red-800' :
+                              denuncia.nivelRisco === 'CRITICO' ? 'bg-red-200 text-red-900' :
+                              denuncia.nivelRisco === 'MEDIO' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {denuncia.nivelRisco}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">{denuncia.descricao}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(denuncia.dataRegistro).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                        <Link
+                          to={`/dashboard/denuncias/${denuncia._id}`}
+                          className="text-unodc-blue-600 hover:text-unodc-blue-800 text-sm font-medium"
+                        >
+                          Ver detalhes
+                        </Link>
                       </div>
-                      <div className="text-right">
-                        <span className={`badge ${denuncia.nivelRisco === 'CRITICO' ? 'badge-danger' : 'badge-warning'}`}>
-                          {denuncia.nivelRisco}
-                        </span>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date(denuncia.dataRegistro).toLocaleDateString('pt-BR')}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

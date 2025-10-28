@@ -4,15 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
-import { useInstituicaoStore } from '@/store/instituicaoStore';
-import { instituicaoService } from '@/services/instituicaoService';
 import { authService } from '@/services/authService';
-import { ArrowLeft, Eye, EyeOff, Loader2, Shield, Building2, Mail, Lock, Users, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Loader2, Shield, Building2, Mail, Lock, AlertCircle } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
   senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
-  instituicaoId: z.string().min(1, 'Selecione uma instituição'),
+  instituicaoId: z.string().min(1, 'Digite o código da instituição'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -20,7 +18,6 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuthStore();
-  const { instituicoes, setInstituicoes, setLoading } = useInstituicaoStore();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,22 +30,6 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  // Carregar instituições
-  useEffect(() => {
-    const loadInstituicoes = async () => {
-      try {
-        setLoading(true);
-        const data = await instituicaoService.getInstituicoes();
-        setInstituicoes(data);
-      } catch (error) {
-        console.error('Erro ao carregar instituições:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadInstituicoes();
-  }, [setInstituicoes, setLoading]);
 
   // Redirecionar se já estiver logado
   useEffect(() => {
@@ -61,7 +42,6 @@ export default function LoginPage() {
     try {
       setIsSubmitting(true);
       console.log('🔍 Dados do formulário:', data);
-      console.log('🔍 Instituições disponíveis:', instituicoes);
       
       const response = await authService.login(data);
       console.log('✅ Resposta do login:', response);
@@ -74,7 +54,7 @@ export default function LoginPage() {
       if (error.response?.status === 401) {
         setError('root', {
           type: 'manual',
-          message: 'Credenciais inválidas. Verifique seu email, senha e instituição.',
+          message: 'Credenciais inválidas. Verifique seu email, senha e código da instituição.',
         });
       } else {
         setError('root', {
@@ -201,30 +181,23 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                {/* Instituição */}
+                {/* Código da Instituição */}
                 <div>
                   <label htmlFor="instituicaoId" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Instituição
+                    Código da Instituição
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Building2 className="h-5 w-5 text-gray-400" />
                     </div>
-                    <select
+                    <input
                       {...register('instituicaoId')}
+                      type="text"
                       id="instituicaoId"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white appearance-none"
-                    >
-                      <option value="">Selecione sua instituição</option>
-                      {instituicoes.map((instituicao) => (
-                        <option key={instituicao._id} value={instituicao._id}>
-                          {instituicao.nome} ({instituicao.sigla})
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <Users className="h-5 w-5 text-gray-400" />
-                    </div>
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white uppercase"
+                      placeholder="Ex: HUMAI1, ONG001, PGR001"
+                      style={{ textTransform: 'uppercase' }}
+                    />
                   </div>
                   {errors.instituicaoId && (
                     <p className="mt-2 text-sm text-red-600 flex items-center">
@@ -232,6 +205,9 @@ export default function LoginPage() {
                       {errors.instituicaoId.message}
                     </p>
                   )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    Digite o código de 6 caracteres da sua instituição
+                  </p>
                 </div>
 
                 {/* Erro geral */}

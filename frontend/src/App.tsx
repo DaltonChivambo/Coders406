@@ -13,6 +13,9 @@ import RastreioInternoPage from '@/pages/RastreioInternoPage';
 import VerificarOportunidadePage from '@/pages/VerificarOportunidadePage';
 import VerificarStatusPage from '@/pages/VerificarStatusPage';
 import NovaDenunciaPage from '@/pages/NovaDenunciaPage';
+import AnalisePendentePage from '@/pages/AnalisePendentePage';
+import MeusCasosPage from '@/pages/MeusCasosPage';
+import SubmeterCasosPage from '@/pages/SubmeterCasosPage';
 
 // Componentes
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -29,7 +32,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   // Verificar se há token válido no localStorage
   useEffect(() => {
@@ -97,6 +100,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <NovaDenunciaPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas para Analistas */}
+            <Route
+              path="/dashboard/analise/pendentes"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AnalisePendentePage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/analise/minhas"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <MeusCasosPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/analise/submeter"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <SubmeterCasosPage />
+                  </Layout>
                 </ProtectedRoute>
               }
             />

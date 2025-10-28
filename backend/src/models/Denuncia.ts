@@ -333,7 +333,7 @@ const DenunciaSchema = new Schema<IDenuncia>({
     type: String,
     enum: Object.values(StatusDenuncia),
     required: true,
-    default: StatusDenuncia.INCOMPLETA
+    default: StatusDenuncia.AGUARDANDO_TRIAGEM
   },
   
   // Localização
@@ -484,7 +484,7 @@ DenunciaSchema.pre('save', function(next) {
 
 // Método para calcular tempo de resolução
 DenunciaSchema.methods.calcularTempoResolucao = function() {
-  if (this.status === StatusDenuncia.ENCERRADO_AUTORIDADE && this.dataRegistro) {
+  if (this.status === StatusDenuncia.CASO_ENCERRADO && this.dataRegistro) {
     const inicio = this.dataRegistro;
     const fim = this.dataUltimaAtualizacao || new Date();
     this.tempoResolucao = Math.ceil((fim.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
