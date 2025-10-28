@@ -307,48 +307,30 @@ export default function NovaDenunciaPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {/* Tipo de Denúncia */}
+          {/* Canal de Denúncia */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <FileText className="w-5 h-5 mr-2 text-unodc-blue-600" />
-              Tipo de Denúncia
+              Canal de Denúncia
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tipo *
-                </label>
-                <select
-                  {...register('tipoDenuncia')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
-                >
-                  <option value={TipoDenuncia.INSTITUCIONAL_PRIVADA}>Institucional Privada</option>
-                  <option value={TipoDenuncia.INTERNA_INVESTIGACAO}>Interna Investigação</option>
-                </select>
-                {errors.tipoDenuncia && (
-                  <p className="mt-1 text-sm text-red-600">{errors.tipoDenuncia.message}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Canal *
-                </label>
-                <select
-                  {...register('canalDenuncia')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
-                >
-                  <option value={CanalDenuncia.WEB}>Web</option>
-                  <option value={CanalDenuncia.APP}>App</option>
-                  <option value={CanalDenuncia.TELEFONE}>Telefone</option>
-                  <option value={CanalDenuncia.WHATSAPP}>WhatsApp</option>
-                  <option value={CanalDenuncia.PRESENCIAL}>Presencial</option>
-                </select>
-                {errors.canalDenuncia && (
-                  <p className="mt-1 text-sm text-red-600">{errors.canalDenuncia.message}</p>
-                )}
-              </div>
+            <div className="max-w-md">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Canal *
+              </label>
+              <select
+                {...register('canalDenuncia')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+              >
+                <option value={CanalDenuncia.WEB}>Web</option>
+                <option value={CanalDenuncia.APP}>App</option>
+                <option value={CanalDenuncia.TELEFONE}>Telefone</option>
+                <option value={CanalDenuncia.WHATSAPP}>WhatsApp</option>
+                <option value={CanalDenuncia.PRESENCIAL}>Presencial</option>
+              </select>
+              {errors.canalDenuncia && (
+                <p className="mt-1 text-sm text-red-600">{errors.canalDenuncia.message}</p>
+              )}
             </div>
           </div>
 
