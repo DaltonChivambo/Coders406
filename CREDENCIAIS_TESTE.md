@@ -12,51 +12,51 @@
 - **Email**: maria@humai.org.mz
 - **Senha**: 123456
 - **Perfil**: Coordenador Associação
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5a
+- **ID da Instituição**: 69009dcfa0029e193e745a86
 
 ### 🏢 ONG Proteção da Mulher (PM)
 - **Email**: joao@protecaomulher.org.mz
 - **Senha**: 123456
 - **Perfil**: Agente Comunitário
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5b
+- **ID da Instituição**: 69009dcfa0029e193e745a87
 
 - **Email**: ana@protecaomulher.org.mz
 - **Senha**: 123456
 - **Perfil**: Operador
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5b
+- **ID da Instituição**: 69009dcfa0029e193e745a87
 
 - **Email**: carlos@protecaomulher.org.mz
 - **Senha**: 123456
 - **Perfil**: Analista
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5b
+- **ID da Instituição**: 69009dcfa0029e193e745a87
 
 - **Email**: sofia@protecaomulher.org.mz
 - **Senha**: 123456
 - **Perfil**: Supervisor
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5b
+- **ID da Instituição**: 69009dcfa0029e193e745a87
 
 ### 🏢 SERNIC (Serviço Nacional de Investigação Criminal)
 - **Email**: miguel@sernic.gov.mz
 - **Senha**: 123456
 - **Perfil**: Coordenador Local
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5c
+- **ID da Instituição**: 69009dcfa0029e193e745a88
 
 - **Email**: isabel@sernic.gov.mz
 - **Senha**: 123456
 - **Perfil**: Investigador
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5c
+- **ID da Instituição**: 69009dcfa0029e193e745a88
 
 ### 🏢 PRM (Polícia da República de Moçambique)
 - **Email**: pedro@prm.gov.mz
 - **Senha**: 123456
 - **Perfil**: Investigador
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5d
+- **ID da Instituição**: 69009dcfa0029e193e745a89
 
 ### 🏢 PGR (Procuradoria-Geral da República)
 - **Email**: rita@pgr.gov.mz
 - **Senha**: 123456
 - **Perfil**: Investigador
-- **ID da Instituição**: 68ff5b9a31867c9647a99a5e
+- **ID da Instituição**: 69009dcfa0029e193e745a8a
 
 ### 🏢 ESCOLA SECUNDÁRIA JOSINA MACHEL (ESJM)
 - **Email**: carlos@esjm.edu.mz
@@ -124,7 +124,7 @@ Se houver problemas:
    ```bash
    curl -X POST http://localhost:5000/api/auth/login \
      -H "Content-Type: application/json" \
-     -d '{"email":"maria@humai.org.mz","senha":"123456","instituicaoId":"68ff5b9a31867c9647a99a5a"}'
+     -d '{"email":"maria@humai.org.mz","senha":"123456","instituicaoId":"69009dcfa0029e193e745a86"}'
    ```
 
 ## 📝 NOTAS
