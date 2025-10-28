@@ -54,6 +54,12 @@ This experience not only allowed us to apply our programming and technology skil
 - **GitHub:** [github.com/MichaelMB77](https://github.com/MichaelMB77)
 - **LinkedIn:** [Michael Mabombe](https://linkedin.com/in/MichaelMabombe)
 
+### 👨‍💻 Liliano licumba 
+- **Email:** lilianolicumba42@gmail.com
+- **GitHub:** [github.com/Ailinol](https://github.com/Ailinol)
+- **LinkedIn:** [Liliano Ricardo Licumba](https://www.linkedin.com/in/liliano-licumba-b3b817364)
+
+
 ## Projects
 
 This repository contains collaborations from our team and demonstrates our commitment to quality code and innovative solutions.

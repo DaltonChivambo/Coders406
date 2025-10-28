@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { 
   FileText, 
   AlertTriangle, 
-  Users, 
   BarChart3, 
   Clock, 
   CheckCircle,
@@ -470,7 +469,7 @@ export default function DashboardPage() {
           </div>
           
           <Link
-            to="/nova-denuncia"
+            to="/dashboard/denuncias/nova"
             className="inline-flex items-center px-4 py-2 bg-unodc-blue-500 hover:bg-unodc-blue-600 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5"
           >
             <Plus className="w-5 h-5 mr-2" />

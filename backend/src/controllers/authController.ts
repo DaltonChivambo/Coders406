@@ -9,6 +9,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, senha, instituicaoId }: ILoginRequest = req.body;
 
+    console.log('🔍 DEBUG LOGIN - Dados recebidos:', {
+      email: email?.toLowerCase(),
+      senha: senha ? '[REDACTED]' : 'undefined',
+      instituicaoId: instituicaoId || 'undefined'
+    });
+
     // Buscar usuário
     const user = await Usuario.findOne({ 
       email: email.toLowerCase(),
@@ -16,7 +22,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       ativo: true 
     }).populate('instituicaoId');
 
+    console.log('🔍 DEBUG LOGIN - Usuário encontrado:', user ? {
+      id: user._id,
+      email: user.email,
+      instituicaoId: user.instituicaoId?._id,
+      instituicaoNome: (user.instituicaoId as any)?.nome,
+      ativo: user.ativo
+    } : 'null');
+
     if (!user) {
+      console.log('❌ DEBUG LOGIN - Usuário não encontrado');
       res.status(401).json({
         success: false,
         message: 'Credenciais inválidas'
@@ -26,7 +41,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Verificar senha
     const isPasswordValid = await user.comparePassword(senha);
+    console.log('🔍 DEBUG LOGIN - Senha válida:', isPasswordValid);
+    
     if (!isPasswordValid) {
+      console.log('❌ DEBUG LOGIN - Senha inválida');
       res.status(401).json({
         success: false,
         message: 'Credenciais inválidas'
@@ -76,8 +94,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       message: 'Login realizado com sucesso',
       data: response
     });
+    
+    console.log('✅ DEBUG LOGIN - Login realizado com sucesso para:', user.email);
   } catch (error) {
-    console.error('Erro no login:', error);
+    console.error('❌ DEBUG LOGIN - Erro no login:', error);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor'
