@@ -63,11 +63,21 @@ function App() {
 
             {/* Rotas protegidas */}
             <Route
-              path="/dashboard/*"
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Layout>
                     <DashboardPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/denuncias/nova"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <NovaDenunciaPage />
                   </Layout>
                 </ProtectedRoute>
               }
