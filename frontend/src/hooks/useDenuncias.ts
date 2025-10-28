@@ -72,13 +72,13 @@ export const useDenunciaStats = () => {
       // Calcular estatísticas
       const totalDenuncias = allDenuncias.length;
       const denunciasPendentes = allDenuncias.filter(d => 
-        d.status === 'INCOMPLETA' || d.status === 'PENDENTE'
+        d.status === 'AGUARDANDO_TRIAGEM' || d.status === 'EM_ANALISE'
       ).length;
       const casosAtivos = allDenuncias.filter(d => 
-        d.status === 'EM_ANALISE' || d.status === 'EM_INVESTIGACAO'
+        d.status === 'EM_ANALISE' || d.status === 'EM_INVESTIGACAO' || d.status === 'SUBMETIDO_AUTORIDADE'
       ).length;
       const casosResolvidos = allDenuncias.filter(d => 
-        d.status === 'RESOLVIDO' || d.status === 'ARQUIVADO'
+        d.status === 'CASO_ENCERRADO' || d.status === 'ARQUIVADO'
       ).length;
       
       const taxaResolucao = totalDenuncias > 0 ? (casosResolvidos / totalDenuncias) * 100 : 0;

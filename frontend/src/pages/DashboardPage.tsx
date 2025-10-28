@@ -2,13 +2,13 @@ import { useAuthStore } from '@/store/authStore';
 import { PerfilUsuario } from '@/types';
 import { Link } from 'react-router-dom';
 import { useDenuncias, useDenunciaStats } from '@/hooks/useDenuncias';
+import { DashboardCharts } from '@/components/Charts';
 import { 
   FileText, 
   AlertTriangle, 
   BarChart3, 
   Clock, 
   CheckCircle,
-  TrendingUp,
   Plus,
   Loader2
 } from 'lucide-react';
@@ -27,7 +27,6 @@ export default function DashboardPage() {
 
   const getDashboardContent = () => {
     switch (user?.perfil) {
-      case PerfilUsuario.AGENTE_COMUNITARIO:
       case PerfilUsuario.OPERADOR:
         return (
           <div className="space-y-6">
@@ -120,9 +119,11 @@ export default function DashboardPage() {
                               {denuncia.codigoRastreio}
                             </span>
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              denuncia.status === 'SUSPEITA' ? 'bg-yellow-100 text-yellow-800' :
-                              denuncia.status === 'EM_INVESTIGACAO_INTERNA' ? 'bg-blue-100 text-blue-800' :
-                              denuncia.status === 'INCOMPLETA' ? 'bg-orange-100 text-orange-800' :
+                              denuncia.status === 'AGUARDANDO_TRIAGEM' ? 'bg-yellow-100 text-yellow-800' :
+                              denuncia.status === 'EM_ANALISE' ? 'bg-blue-100 text-blue-800' :
+                              denuncia.status === 'SUBMETIDO_AUTORIDADE' ? 'bg-purple-100 text-purple-800' :
+                              denuncia.status === 'EM_INVESTIGACAO' ? 'bg-orange-100 text-orange-800' :
+                              denuncia.status === 'CASO_ENCERRADO' ? 'bg-green-100 text-green-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
                               {denuncia.status.replace('_', ' ')}
@@ -168,7 +169,10 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Pendentes de Análise</p>
-                      <p className="text-2xl font-bold text-gray-900">8</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
+                         recentDenuncias.filter(d => d.status === 'AGUARDANDO_TRIAGEM').length}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -182,7 +186,10 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Em Análise</p>
-                      <p className="text-2xl font-bold text-gray-900">5</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
+                         recentDenuncias.filter(d => d.status === 'EM_ANALISE').length}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -195,8 +202,11 @@ export default function DashboardPage() {
                       <CheckCircle className="h-6 w-6 text-unodc-green-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Analisados Hoje</p>
-                      <p className="text-2xl font-bold text-gray-900">12</p>
+                      <p className="text-sm font-medium text-gray-600">Submetidos</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
+                         recentDenuncias.filter(d => d.status === 'SUBMETIDO_AUTORIDADE').length}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -206,32 +216,40 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="card">
                 <div className="card-header">
-                  <h3 className="text-lg font-semibold text-gray-900">Casos por Status</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Tipos de Tráfico</h3>
                 </div>
                 <div className="card-body">
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Suspeitos</span>
-                      <span className="text-sm font-medium">45%</span>
+                      <span className="text-sm text-gray-600">Tráfico Sexual</span>
+                      <span className="text-sm font-medium">42%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-unodc-gold-500 h-2 rounded-full" style={{ width: '45%' }}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="bg-red-500 h-3 rounded-full" style={{ width: '42%' }}></div>
                     </div>
                     
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Prováveis</span>
-                      <span className="text-sm font-medium">30%</span>
+                      <span className="text-sm text-gray-600">Trabalho Forçado</span>
+                      <span className="text-sm font-medium">28%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-unodc-red-500 h-2 rounded-full" style={{ width: '30%' }}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="bg-orange-500 h-3 rounded-full" style={{ width: '28%' }}></div>
                     </div>
                     
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Descartados</span>
-                      <span className="text-sm font-medium">25%</span>
+                      <span className="text-sm text-gray-600">Adoção Ilegal</span>
+                      <span className="text-sm font-medium">18%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-gray-500 h-2 rounded-full" style={{ width: '25%' }}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="bg-yellow-500 h-3 rounded-full" style={{ width: '18%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Outros</span>
+                      <span className="text-sm font-medium">12%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="bg-gray-500 h-3 rounded-full" style={{ width: '12%' }}></div>
                     </div>
                   </div>
                 </div>
@@ -239,19 +257,116 @@ export default function DashboardPage() {
 
               <div className="card">
                 <div className="card-header">
-                  <h3 className="text-lg font-semibold text-gray-900">Tempo Médio de Análise</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Vítimas por Idade</h3>
                 </div>
                 <div className="card-body">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-unodc-blue-600 mb-2">
-                      {stats.tempoMedioResolucao}h
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Crianças (0-12)</span>
+                      <span className="text-sm font-medium">35%</span>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      Tempo médio para análise de casos
-                    </p>
-                    <div className="mt-4 flex items-center justify-center text-green-600">
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                      <span className="text-sm">-15% vs mês anterior</span>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="bg-red-600 h-3 rounded-full" style={{ width: '35%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Adolescentes (13-17)</span>
+                      <span className="text-sm font-medium">40%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="bg-orange-500 h-3 rounded-full" style={{ width: '40%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Adultos (18+)</span>
+                      <span className="text-sm font-medium">25%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="bg-yellow-500 h-3 rounded-full" style={{ width: '25%' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="text-lg font-semibold text-gray-900">Vulnerabilidades</h3>
+                </div>
+                <div className="card-body">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Pobreza</span>
+                      <span className="text-sm font-medium">68%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-red-500 h-2 rounded-full" style={{ width: '68%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Migração</span>
+                      <span className="text-sm font-medium">45%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-orange-500 h-2 rounded-full" style={{ width: '45%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Orfandade</span>
+                      <span className="text-sm font-medium">32%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '32%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Analfabetismo</span>
+                      <span className="text-sm font-medium">28%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '28%' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="text-lg font-semibold text-gray-900">Distritos com Mais Casos</h3>
+                </div>
+                <div className="card-body">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Maputo Cidade</span>
+                      <span className="text-sm font-medium">45 casos</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-red-500 h-2 rounded-full" style={{ width: '90%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Matola</span>
+                      <span className="text-sm font-medium">28 casos</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-orange-500 h-2 rounded-full" style={{ width: '56%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Beira</span>
+                      <span className="text-sm font-medium">18 casos</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '36%' }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Nampula</span>
+                      <span className="text-sm font-medium">12 casos</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '24%' }}></div>
                     </div>
                   </div>
                 </div>
@@ -260,7 +375,7 @@ export default function DashboardPage() {
           </div>
         );
 
-      case PerfilUsuario.SUPERVISOR:
+      case PerfilUsuario.AUTORIDADE:
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -271,8 +386,11 @@ export default function DashboardPage() {
                       <FileText className="h-6 w-6 text-unodc-blue-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Total de Casos</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.totalDenuncias}</p>
+                      <p className="text-sm font-medium text-gray-600">Casos Submetidos</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
+                         recentDenuncias.filter(d => d.status === 'SUBMETIDO_AUTORIDADE').length}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -285,8 +403,11 @@ export default function DashboardPage() {
                       <Clock className="h-6 w-6 text-unodc-gold-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Pendentes</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.denunciasPendentes}</p>
+                      <p className="text-sm font-medium text-gray-600">Em Investigação</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
+                         recentDenuncias.filter(d => d.status === 'EM_INVESTIGACAO').length}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -299,8 +420,11 @@ export default function DashboardPage() {
                       <CheckCircle className="h-6 w-6 text-unodc-green-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Resolvidos</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.casosResolvidos}</p>
+                      <p className="text-sm font-medium text-gray-600">Casos Encerrados</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
+                         recentDenuncias.filter(d => d.status === 'CASO_ENCERRADO').length}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -321,71 +445,60 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="text-lg font-semibold text-gray-900">Performance dos Analistas</h3>
-                </div>
-                <div className="card-body">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-unodc-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-unodc-blue-600">MA</span>
-                        </div>
-                        <span className="ml-3 text-sm font-medium text-gray-900">Maria Santos</span>
-                      </div>
-                      <span className="text-sm text-gray-600">15 casos</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-unodc-green-100 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-unodc-green-600">JS</span>
-                        </div>
-                        <span className="ml-3 text-sm font-medium text-gray-900">João Silva</span>
-                      </div>
-                      <span className="text-sm text-gray-600">12 casos</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-unodc-gold-100 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-unodc-gold-600">AC</span>
-                        </div>
-                        <span className="ml-3 text-sm font-medium text-gray-900">Ana Costa</span>
-                      </div>
-                      <span className="text-sm text-gray-600">8 casos</span>
-                    </div>
-                  </div>
-                </div>
+            <div className="card">
+              <div className="card-header">
+                <h3 className="text-lg font-semibold text-gray-900">Casos Recentes</h3>
               </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="text-lg font-semibold text-gray-900">Casos Prontos para Encaminhamento</h3>
-                </div>
-                <div className="card-body">
-                  <div className="space-y-3">
-                    <div className="p-3 bg-unodc-blue-50 rounded-lg">
-                      <p className="text-sm font-medium text-gray-900">HUMAI-ABC123</p>
-                      <p className="text-xs text-gray-600">Tráfico sexual - Nível Alto</p>
-                    </div>
-                    <div className="p-3 bg-unodc-red-50 rounded-lg">
-                      <p className="text-sm font-medium text-gray-900">HUMAI-DEF456</p>
-                      <p className="text-xs text-gray-600">Trabalho forçado - Nível Crítico</p>
-                    </div>
-                    <div className="p-3 bg-unodc-gold-50 rounded-lg">
-                      <p className="text-sm font-medium text-gray-900">HUMAI-GHI789</p>
-                      <p className="text-xs text-gray-600">Adoção ilegal - Nível Médio</p>
-                    </div>
+              <div className="card-body">
+                {isLoadingDenuncias ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-unodc-blue-600" />
+                    <span className="ml-2 text-gray-600">Carregando casos...</span>
                   </div>
-                </div>
+                ) : recentDenuncias.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Nenhum caso encontrado</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentDenuncias.slice(0, 5).map((denuncia) => (
+                      <div key={denuncia._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3">
+                            <span className="text-sm font-medium text-unodc-blue-600">
+                              {denuncia.codigoRastreio}
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              denuncia.status === 'SUBMETIDO_AUTORIDADE' ? 'bg-purple-100 text-purple-800' :
+                              denuncia.status === 'EM_INVESTIGACAO' ? 'bg-orange-100 text-orange-800' :
+                              denuncia.status === 'CASO_ENCERRADO' ? 'bg-green-100 text-green-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {denuncia.status.replace('_', ' ')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">{denuncia.descricao}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(denuncia.dataRegistro).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                        <Link
+                          to={`/dashboard/denuncias/${denuncia._id}`}
+                          className="text-unodc-blue-600 hover:text-unodc-blue-800 text-sm font-medium"
+                        >
+                          Ver detalhes
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         );
 
+      case PerfilUsuario.GESTOR_SISTEMA:
       default:
         return (
           <div className="space-y-6">
@@ -398,7 +511,9 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total de Denúncias</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.totalDenuncias}</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.totalDenuncias}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -412,7 +527,9 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Casos Ativos</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.casosAtivos}</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.casosAtivos}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -426,7 +543,9 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Resolvidos</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.casosResolvidos}</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.casosResolvidos}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -440,7 +559,9 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Taxa de Resolução</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.taxaResolucao}%</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.taxaResolucao}%
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -449,18 +570,59 @@ export default function DashboardPage() {
 
             <div className="card">
               <div className="card-header">
-                <h3 className="text-lg font-semibold text-gray-900">Bem-vindo ao HUMAI</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Todas as Denúncias</h3>
               </div>
               <div className="card-body">
-                <p className="text-gray-600 mb-4">
-                  Olá, {user?.nome}! Este é o seu painel de controle personalizado baseado no seu perfil: 
-                  <span className="font-medium text-unodc-blue-600 ml-1">
-                    {user?.perfil.replace('_', ' ')}
-                  </span>
-                </p>
-                <p className="text-gray-600">
-                  Use o menu lateral para navegar pelas funcionalidades disponíveis para o seu perfil.
-                </p>
+                {isLoadingDenuncias ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-unodc-blue-600" />
+                    <span className="ml-2 text-gray-600">Carregando denúncias...</span>
+                  </div>
+                ) : recentDenuncias.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Nenhuma denúncia encontrada</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentDenuncias.slice(0, 10).map((denuncia) => (
+                      <div key={denuncia._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3">
+                            <span className="text-sm font-medium text-unodc-blue-600">
+                              {denuncia.codigoRastreio}
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              denuncia.status === 'AGUARDANDO_TRIAGEM' ? 'bg-yellow-100 text-yellow-800' :
+                              denuncia.status === 'EM_ANALISE' ? 'bg-blue-100 text-blue-800' :
+                              denuncia.status === 'SUBMETIDO_AUTORIDADE' ? 'bg-purple-100 text-purple-800' :
+                              denuncia.status === 'EM_INVESTIGACAO' ? 'bg-orange-100 text-orange-800' :
+                              denuncia.status === 'CASO_ENCERRADO' ? 'bg-green-100 text-green-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {denuncia.status.replace('_', ' ')}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {typeof denuncia.instituicaoOrigemId === 'object' && denuncia.instituicaoOrigemId && 'nome' in denuncia.instituicaoOrigemId
+                                ? (denuncia.instituicaoOrigemId as any).nome 
+                                : 'Instituição não informada'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">{denuncia.descricao}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(denuncia.dataRegistro).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                        <Link
+                          to={`/dashboard/denuncias/${denuncia._id}`}
+                          className="text-unodc-blue-600 hover:text-unodc-blue-800 text-sm font-medium"
+                        >
+                          Ver detalhes
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -492,6 +654,15 @@ export default function DashboardPage() {
       </div>
 
       {getDashboardContent()}
+      
+      {/* Seção de Gráficos */}
+      <div className="mt-8">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Análise de Dados</h2>
+          <p className="text-gray-600">Visualização de casos pendentes, em análise e submetidos</p>
+        </div>
+        <DashboardCharts />
+      </div>
     </div>
   );
 }
