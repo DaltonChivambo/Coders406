@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { denunciaService } from '@/services/denunciaService';
 import { useAuthStore } from '@/store/authStore';
-import { TipoDenuncia, CanalDenuncia, TipoTrafico, Genero, FaixaEtaria, Vulnerabilidade, RelacaoVitima, StatusDenuncia, NivelRisco, Prioridade } from '@/types';
+import { TipoDenuncia, CanalDenuncia, TipoTrafico, Genero, FaixaEtaria, Vulnerabilidade, RelacaoVitima } from '@/types';
 import { ArrowLeft, Plus, Minus, Upload, CheckCircle, Shield, AlertCircle, MapPin, Users, UserCheck, FileText, Loader2, Save, Send } from 'lucide-react';
 
 const novaDenunciaSchema = z.object({
@@ -58,10 +58,6 @@ const novaDenunciaSchema = z.object({
     localizacao: z.string(),
     anonimo: z.boolean(),
   }),
-  // Campos específicos para operadores
-  status: z.nativeEnum(StatusDenuncia).optional(),
-  nivelRisco: z.nativeEnum(NivelRisco).optional(),
-  prioridade: z.nativeEnum(Prioridade).optional(),
   observacoesInternas: z.string().optional(),
 });
 
@@ -93,9 +89,6 @@ export default function NovaDenunciaPage() {
       suspeitos: [{ sexo: '', relacaoVitima: RelacaoVitima.DESCONHECIDO, descricaoFisica: '' }],
       contatos: { telefoneDenunciante: '', urls: [] },
       denunciante: { nome: '', telefone: '', localizacao: '', anonimo: false },
-      status: StatusDenuncia.INCOMPLETA,
-      nivelRisco: NivelRisco.MEDIO,
-      prioridade: Prioridade.NORMAL,
     },
   });
 
@@ -334,60 +327,6 @@ export default function NovaDenunciaPage() {
             </div>
           </div>
 
-          {/* Status e Prioridade */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <AlertCircle className="w-5 h-5 mr-2 text-unodc-blue-600" />
-              Status e Prioridade
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Status
-                </label>
-                <select
-                  {...register('status')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
-                >
-                  <option value={StatusDenuncia.INCOMPLETA}>Incompleta</option>
-                  <option value={StatusDenuncia.SUSPEITA}>Suspeita</option>
-                  <option value={StatusDenuncia.PROVAVEL}>Provável</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nível de Risco
-                </label>
-                <select
-                  {...register('nivelRisco')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
-                >
-                  <option value={NivelRisco.MINIMO}>Mínimo</option>
-                  <option value={NivelRisco.BAIXO}>Baixo</option>
-                  <option value={NivelRisco.MEDIO}>Médio</option>
-                  <option value={NivelRisco.ALTO}>Alto</option>
-                  <option value={NivelRisco.CRITICO}>Crítico</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Prioridade
-                </label>
-                <select
-                  {...register('prioridade')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
-                >
-                  <option value={Prioridade.BAIXA}>Baixa</option>
-                  <option value={Prioridade.NORMAL}>Normal</option>
-                  <option value={Prioridade.ALTA}>Alta</option>
-                  <option value={Prioridade.URGENTE}>Urgente</option>
-                </select>
-              </div>
-            </div>
-          </div>
 
           {/* Tipo de Tráfico */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
