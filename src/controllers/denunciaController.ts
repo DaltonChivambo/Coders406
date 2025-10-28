@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Denuncia, Historico } from '../models';
 import { createError, createNotFoundError } from '../middleware/errorHandler';
-import { IAuthRequest, IDenunciaFilters, IPaginatedResponse, TipoObservacao, TipoEvidencia } from '../types';
+import { IAuthRequest, IDenunciaFilters, IPaginatedResponse, TipoObservacao, TipoEvidencia, StatusDenuncia } from '../types';
 import { uploadMultiple } from '../middleware/upload';
 import { getFilePath } from '../middleware/upload';
 import { Types } from 'mongoose';
@@ -568,22 +568,22 @@ export const getStatusPublicoDenuncia = async (req: Request, res: Response): Pro
       {
         nome: 'Análise Inicial',
         status: ['SUSPEITA', 'PROVAVEL', 'EM_INVESTIGACAO_INTERNA', 'SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === 'INCOMPLETA' ? 'em_andamento' : 'pendente',
-        data: denuncia.status === 'INCOMPLETA' ? denuncia.dataUltimaAtualizacao : undefined,
+               denuncia.status === StatusDenuncia.INCOMPLETA ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.INCOMPLETA ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
         nome: 'Investigação',
         status: ['EM_INVESTIGACAO_INTERNA', 'SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === 'PROVAVEL' ? 'em_andamento' : 'pendente',
-        data: denuncia.status === 'PROVAVEL' ? denuncia.dataUltimaAtualizacao : undefined,
+               denuncia.status === StatusDenuncia.PROVAVEL ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.PROVAVEL ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
         nome: 'Coordenação Interinstitucional',
         status: ['SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === 'EM_INVESTIGACAO_INTERNA' ? 'em_andamento' : 'pendente',
-        data: denuncia.status === 'EM_INVESTIGACAO_INTERNA' ? denuncia.dataUltimaAtualizacao : undefined,
+               denuncia.status === StatusDenuncia.EM_INVESTIGACAO_INTERNA ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.EM_INVESTIGACAO_INTERNA ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
