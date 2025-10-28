@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { denunciaService } from '@/services/denunciaService';
+import { useAuthStore } from '@/store/authStore';
 import { TipoDenuncia, CanalDenuncia, TipoTrafico, Genero, FaixaEtaria, Vulnerabilidade, RelacaoVitima, StatusDenuncia, NivelRisco, Prioridade } from '@/types';
 import { ArrowLeft, Plus, Minus, Upload, CheckCircle, Shield, AlertCircle, MapPin, Users, UserCheck, FileText, Loader2, Save, Send } from 'lucide-react';
 
@@ -68,6 +69,7 @@ type NovaDenunciaFormData = z.infer<typeof novaDenunciaSchema>;
 
 export default function NovaDenunciaPage() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [codigoRastreio, setCodigoRastreio] = useState<string>('');
@@ -163,9 +165,14 @@ export default function NovaDenunciaPage() {
         denunciante: {
           ...data.denunciante,
           anonimo: denunciaAnonima
-        }
+        },
+        // Adicionar dados do usuário logado
+        instituicaoId: user?.instituicao?.id,
+        criadoPor: user?.id
       };
 
+      console.log('Dados da denúncia a serem enviados:', denunciaData);
+      
       const response = await denunciaService.createDenuncia(denunciaData);
       setCodigoRastreio(response.codigoRastreio);
       setIsSuccess(true);
@@ -261,6 +268,44 @@ export default function NovaDenunciaPage() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Informações do Usuário */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <UserCheck className="w-5 h-5 mr-2 text-unodc-blue-600" />
+            Informações do Usuário
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nome do Usuário
+              </label>
+              <p className="text-sm text-gray-900 font-medium">{user?.nome}</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Instituição
+              </label>
+              <p className="text-sm text-gray-900 font-medium">{user?.instituicao?.nome}</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Perfil
+              </label>
+              <p className="text-sm text-gray-900 font-medium">{user?.perfil}</p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <p className="text-sm text-gray-900 font-medium">{user?.email}</p>
+            </div>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Tipo de Denúncia */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
