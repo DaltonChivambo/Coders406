@@ -1,101 +1,74 @@
-# HUMAI - Sistema de Monitoramento de Tráfico Humano
+# Coders406
 
-Sistema integrado para denúncias e monitoramento de casos de tráfico humano, conectando instituições e cidadãos na luta contra este crime em Moçambique.
+Welcome to **Coders406** - A collaborative development group focused on building innovative solutions and contributing to the tech community.
 
-## 🎯 Visão Geral
+## About Us
 
-O HUMAI é uma plataforma completa desenvolvida para combater o tráfico humano através da tecnologia, oferecendo:
+**Coders406** was formed during the **"Hackathon Tráfico de Pessoas"** organized by the **United Nations Office on Drugs and Crime (UNODC)**, the **Faculty of Sciences of Eduardo Mondlane University**, and the **Knowledge Foundation**. Our team came together with a shared mission to develop technological solutions to prevent and combat human trafficking in Mozambique.
 
-- **Sistema de Denúncias**: Interface para cidadãos e instituições reportarem casos suspeitos
-- **Monitoramento de Casos**: Acompanhamento do progresso das denúncias em tempo real
-- **Colaboração Institucional**: Conexão entre diferentes organizações para investigação coordenada
-- **Transparência Pública**: Acesso a estatísticas e casos resolvidos (anonimizados)
+We are a group of passionate developers committed to using technology for social good, combining our programming skills with social awareness to create meaningful impact in our community.
 
-## 🏢 Instituições Suportadas
+## 🌍 Our Origin - UNODC Hackathon Tráfico de Pessoas
 
-- **Associação Coordenadora HUMAI**
-- **ONG Proteção da Mulher**
-- **SERNIC** (Serviço Nacional de Investigação Criminal)
-- **PRM** (Polícia da República de Moçambique)
-- **PGR** (Procuradoria-Geral da República)
-- **Escolas** (Josina Machel, 25 de Setembro)
-- **Hospitais** (Central Maputo, Provincial Nampula)
-- **Igreja Católica de Maputo**
+Our group was established as part of an important initiative to combat human trafficking through technology innovation. The hackathon was co-organized by:
 
-## 🚀 Tecnologias
+- **UNODC** (United Nations Office on Drugs and Crime)
+- **Faculdade de Ciências da Universidade Eduardo Mondlane**
+- **Knowledge Foundation**
+- With support from the **Kingdom of Norway**
 
-### Backend
-- **Node.js** com **Express**
-- **TypeScript** para tipagem estática
-- **MongoDB** com **Mongoose** para banco de dados
-- **JWT** para autenticação
-- **Multer** para upload de arquivos
-- **Zod** para validação de dados
+### About Human Trafficking
+Human trafficking is a serious crime involving the recruitment, transport, transfer, harboring, or receipt of individuals through force, fraud, or deception for the purpose of exploitation and profit. This widespread crime affects men, women, and children of all ages and backgrounds worldwide, with traffickers often resorting to violence, fraudulent employment agencies, or false promises of education and job opportunities to deceive and coerce their victims.
 
-### Frontend
-- **React** com **TypeScript**
-- **Vite** para build e desenvolvimento
-- **TailwindCSS** para estilização
-- **Zustand** para gerenciamento de estado
-- **React Hook Form** com **Zod** para formulários
-- **React Query** para cache de dados
+### The Initiative
+Recognizing the intersection between digital innovation and entrepreneurship for social causes, UNODC has conducted hackathons in various countries on diverse matters, including Human Trafficking in Colombia (2019) and Canada (2021). This initiative in Mozambique aims to engage young innovators in developing technology-based solutions to combat human trafficking.
 
-## 📊 Funcionalidades
+### Event Structure
+The hackathon consisted of:
 
-### Para Cidadãos
-- Fazer denúncias anônimas ou identificadas
-- Verificar status de denúncias
-- Verificar oportunidades suspeitas
-- Acessar relatórios públicos
+1. **📚 Bootcamp** (October 13-17, 2025): Participants received training on relevant topics
+2. **💻 3-day Hackathon** (October 28-30, 2025): Intensive development period at the Faculty of Sciences, Eduardo Mondlane University
+3. **🏆 Awards Ceremony** (October 30, 2025): Recognition of innovative solutions
 
-### Para Instituições
-- Gerenciar denúncias recebidas
-- Criar novas denúncias internas
-- Rastrear casos em andamento
-- Colaborar com outras instituições
-- Gerar relatórios e estatísticas
+This experience not only allowed us to apply our programming and technology skills for social benefit but also deepened our understanding of human trafficking while developing crucial social, leadership, and technical skills.
 
-### Para Operadores
-- Dashboard completo com métricas
-- Criação de denúncias institucionais
-- Gerenciamento de casos
-- Sistema de priorização e classificação
+## Team Members
 
-## 🔧 Instalação e Execução
+### 👨‍💻 Túlio Benedito Nhantumbo
+- **Email:** beneditotulio28@gmail.com
+- **GitHub:** [github.com/beneditotulio](https://github.com/beneditotulio)
+- **LinkedIn:** [Túlio Benedito Nhantumbo](https://linkedin.com/in/t%C3%BAlio-benedito-nhantumbo-9bb081213/)
 
-### Pré-requisitos
-- Node.js (versão 16 ou superior)
-- MongoDB
-- npm ou yarn
+### 👨‍💻 Dalton Viriato Chivambo
+- **Email:** daltonchivambo@gmail.com
+- **GitHub:** [github.com/DaltonChivambo](https://github.com/DaltonChivambo)
+- **LinkedIn:** [Dalton Chivambo](https://linkedin.com/in/daltonchivambo)
 
-### Backend
-```bash
-cd backend
-npm install
-npm run dev
-```
+### 👩‍💻 Elina Simione Tsovo
+- **Email:** tsovita1@gmail.com
+- **GitHub:** [github.com/ElinaTsovo](https://github.com/ElinaTsovo)
+- **LinkedIn:** [Elina Simione Tsovo](https://linkedin.com/in/elinasimionetsovo)
 
-### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
+### 👨‍💻 Michael Leonardo
+- **Email:** michaelmabombe2004@gmail.com
+- **GitHub:** [github.com/MichaelMB77](https://github.com/MichaelMB77)
+- **LinkedIn:** [Michael Mabombe](https://linkedin.com/in/MichaelMabombe)
 
-## 📝 Credenciais de Teste
+## Projects
 
-Consulte o arquivo `CREDENCIAIS_TESTE.md` para credenciais de acesso ao sistema.
+This repository contains collaborations from our team and demonstrates our commitment to quality code and innovative solutions.
 
-## 🌐 Acesso
+## Contributing
 
-- **Frontend**: http://localhost:3000
-- **Backend**: http://localhost:5000
-- **API Docs**: http://localhost:5000/api
+We welcome contributions and collaboration! Feel free to:
+- Open issues for bugs or feature requests
+- Submit pull requests
+- Share ideas and feedback
 
-## 📄 Licença
+## Contact
 
-Este projeto foi desenvolvido para o Hackathon UNODC - Tráfico de Pessoas em Moçambique.
+For general inquiries about Coders406, please reach out to any of our team members through their respective contact information listed above.
 
-## 👥 Equipe
+---
 
-Desenvolvido pela equipe **Coders406** durante o Hackathon UNODC.
+*Made with ❤️ by Coders406 - 2025*
