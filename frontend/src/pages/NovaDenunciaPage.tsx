@@ -225,95 +225,97 @@ export default function NovaDenunciaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-unodc-blue-50 via-white to-unodc-navy-50">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-xl shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center text-unodc-navy-600 hover:text-unodc-navy-800 transition-colors duration-200 group"
-              >
-                <ArrowLeft className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-                <span className="text-sm font-medium">Voltar ao Dashboard</span>
-              </button>
+    <div className="min-h-screen bg-gradient-to-br from-unodc-blue-50 to-unodc-navy-50 relative">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="w-full h-full" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat'
+        }}></div>
+      </div>
+
+      <div className="relative z-10 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="inline-flex items-center text-unodc-navy-600 hover:text-unodc-navy-800 transition-colors duration-200 group mb-6"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
+              <span className="text-sm font-medium">Voltar ao Dashboard</span>
+            </button>
+            
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-unodc-blue-600 to-unodc-navy-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Shield className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            
+            <h1 className="text-3xl font-bold text-unodc-navy-900 mb-4">
+              Nova Denúncia
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Registre uma nova denúncia no sistema. 
+              Todas as informações são confidenciais e seguras.
+            </p>
+          </div>
+
+          {/* Form */}
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            {/* Informações do Usuário */}
+            <div className="bg-gradient-to-r from-unodc-blue-50 to-unodc-navy-50 px-8 py-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <UserCheck className="w-5 h-5 mr-2 text-unodc-blue-600" />
+                Informações do Usuário
+              </h2>
               
-              <div className="h-6 w-px bg-gray-300"></div>
-              
-              <div className="flex items-center group">
-                <div className="w-10 h-10 bg-gradient-to-br from-unodc-blue-500 to-unodc-navy-500 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
-                  <Shield className="w-6 h-6 text-white" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nome do Usuário
+                  </label>
+                  <p className="text-sm text-gray-900 font-medium">{user?.nome}</p>
                 </div>
-                <div className="ml-3">
-                  <h1 className="text-xl font-bold text-unodc-navy-900 group-hover:text-unodc-blue-600 transition-colors duration-300">
-                    Nova Denúncia
-                  </h1>
-                  <p className="text-sm text-gray-600">
-                    Registre uma nova denúncia no sistema
-                  </p>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Instituição
+                  </label>
+                  <p className="text-sm text-gray-900 font-medium">{user?.instituicao?.nome}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Perfil
+                  </label>
+                  <p className="text-sm text-gray-900 font-medium">{user?.perfil}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <p className="text-sm text-gray-900 font-medium">{user?.email}</p>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Informações do Usuário */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <UserCheck className="w-5 h-5 mr-2 text-unodc-blue-600" />
-            Informações do Usuário
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nome do Usuário
-              </label>
-              <p className="text-sm text-gray-900 font-medium">{user?.nome}</p>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Instituição
-              </label>
-              <p className="text-sm text-gray-900 font-medium">{user?.instituicao?.nome}</p>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Perfil
-              </label>
-              <p className="text-sm text-gray-900 font-medium">{user?.perfil}</p>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <p className="text-sm text-gray-900 font-medium">{user?.email}</p>
-            </div>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-8">
           {/* Canal de Denúncia */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <FileText className="w-5 h-5 mr-2 text-unodc-blue-600" />
-              Canal de Denúncia
-            </h2>
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <FileText className="h-5 w-5 text-unodc-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Canal de Denúncia</h3>
+            </div>
             
             <div className="max-w-md">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Canal *
               </label>
               <select
                 {...register('canalDenuncia')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
               >
                 <option value={CanalDenuncia.WEB}>Web</option>
                 <option value={CanalDenuncia.APP}>App</option>
@@ -322,19 +324,23 @@ export default function NovaDenunciaPage() {
                 <option value={CanalDenuncia.PRESENCIAL}>Presencial</option>
               </select>
               {errors.canalDenuncia && (
-                <p className="mt-1 text-sm text-red-600">{errors.canalDenuncia.message}</p>
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  {errors.canalDenuncia.message}
+                </p>
               )}
             </div>
           </div>
 
 
           {/* Tipo de Tráfico */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <AlertCircle className="w-5 h-5 mr-2 text-unodc-blue-600" />
-              Tipo de Tráfico Suspeito *
-            </h2>
-            
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <AlertCircle className="h-5 w-5 text-unodc-blue-600 mr-2" />
+              <label className="text-lg font-semibold text-gray-900">
+                Tipo de Tráfico Suspeito *
+              </label>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 { value: TipoTrafico.SEXUAL, label: 'Tráfico Sexual', icon: '🚫' },
@@ -367,106 +373,116 @@ export default function NovaDenunciaPage() {
           </div>
 
           {/* Localização */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <MapPin className="w-5 h-5 mr-2 text-unodc-blue-600" />
-              Localização *
-            </h2>
-            
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <MapPin className="h-5 w-5 text-unodc-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Localização do Incidente</h3>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Província *
                 </label>
                 <input
                   {...register('localizacao.provincia')}
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="Ex: Maputo"
                 />
                 {errors.localizacao?.provincia && (
-                  <p className="mt-1 text-sm text-red-600">{errors.localizacao.provincia.message}</p>
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.localizacao.provincia.message}
+                  </p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Distrito *
                 </label>
                 <input
                   {...register('localizacao.distrito')}
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="Ex: Maputo Cidade"
                 />
                 {errors.localizacao?.distrito && (
-                  <p className="mt-1 text-sm text-red-600">{errors.localizacao.distrito.message}</p>
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.localizacao.distrito.message}
+                  </p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Bairro *
                 </label>
                 <input
                   {...register('localizacao.bairro')}
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="Ex: Polana"
                 />
                 {errors.localizacao?.bairro && (
-                  <p className="mt-1 text-sm text-red-600">{errors.localizacao.bairro.message}</p>
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.localizacao.bairro.message}
+                  </p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Local Específico *
                 </label>
                 <input
                   {...register('localizacao.localEspecifico')}
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="Ex: Rua X, Casa Y"
                 />
                 {errors.localizacao?.localEspecifico && (
-                  <p className="mt-1 text-sm text-red-600">{errors.localizacao.localEspecifico.message}</p>
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.localizacao.localEspecifico.message}
+                  </p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Descrição */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <FileText className="w-5 h-5 mr-2 text-unodc-blue-600" />
-              Descrição da Denúncia *
-            </h2>
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <FileText className="h-5 w-5 text-unodc-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Descrição da Denúncia</h3>
+            </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Descrição Detalhada *
                 </label>
                 <textarea
                   {...register('descricao')}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="Descreva detalhadamente o que aconteceu, incluindo data, hora, pessoas envolvidas, etc."
                 />
                 {errors.descricao && (
-                  <p className="mt-1 text-sm text-red-600">{errors.descricao.message}</p>
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.descricao.message}
+                  </p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Contexto Adicional
                 </label>
                 <textarea
                   {...register('contextoAdicional')}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="Informações adicionais que possam ser relevantes..."
                 />
               </div>
@@ -474,27 +490,27 @@ export default function NovaDenunciaPage() {
           </div>
 
           {/* Observações Internas */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <AlertCircle className="w-5 h-5 mr-2 text-unodc-blue-600" />
-              Observações Internas
-            </h2>
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <AlertCircle className="h-5 w-5 text-unodc-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Observações Internas</h3>
+            </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Observações para a Equipe
               </label>
               <textarea
                 {...register('observacoesInternas')}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                 placeholder="Observações internas que não devem ser compartilhadas com o denunciante..."
               />
             </div>
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={() => navigate('/dashboard')}
@@ -506,7 +522,7 @@ export default function NovaDenunciaPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-3 bg-unodc-blue-500 hover:bg-unodc-blue-600 disabled:bg-gray-400 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 disabled:transform-none flex items-center"
+              className="px-6 py-3 bg-gradient-to-r from-unodc-blue-600 to-unodc-navy-600 hover:from-unodc-blue-700 hover:to-unodc-navy-700 disabled:bg-gray-400 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 disabled:transform-none flex items-center"
             >
               {isSubmitting ? (
                 <>
@@ -521,7 +537,9 @@ export default function NovaDenunciaPage() {
               )}
             </button>
           </div>
-        </form>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
