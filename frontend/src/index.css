@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans text-sm sm:text-base;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    line-height: 1.6;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-gray-900;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    line-height: 1.2;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Melhorar legibilidade em dispositivos móveis */
+  @media (max-width: 640px) {
+    body {
+      font-size: 16px; /* Previne zoom no iOS */
+    }
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-unodc-blue-500 hover:bg-unodc-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-unodc-blue-500 focus:ring-offset-2 text-sm sm:text-base;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .btn-secondary {
+    @apply bg-unodc-navy-100 hover:bg-unodc-navy-200 text-unodc-navy-900 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-unodc-navy-500 focus:ring-offset-2 text-sm sm:text-base;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .btn-outline {
+    @apply border border-unodc-blue-500 text-unodc-blue-500 hover:bg-unodc-blue-50 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-unodc-blue-500 focus:ring-offset-2;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .btn-danger {
+    @apply bg-unodc-red-500 hover:bg-unodc-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-unodc-red-500 focus:ring-offset-2;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .btn-success {
+    @apply bg-unodc-green-500 hover:bg-unodc-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-unodc-green-500 focus:ring-offset-2;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-colors duration-200 text-sm sm:text-base;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-unodc border border-gray-200;
+  }
+  
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+  
+  .card-body {
+    @apply px-6 py-4;
+  }
+  
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-200 bg-gray-50;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply bg-unodc-blue-100 text-unodc-blue-800;
+  }
+  
+  .badge-success {
+    @apply bg-unodc-green-100 text-unodc-green-800;
+  }
+  
+  .badge-warning {
+    @apply bg-unodc-gold-100 text-unodc-gold-800;
+  }
+  
+  .badge-danger {
+    @apply bg-unodc-red-100 text-unodc-red-800;
+  }
+  
+  .badge-gray {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  .status-incompleta {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .status-suspeita {
+    @apply bg-orange-100 text-orange-800;
+  }
+  
+  .status-provavel {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .status-descartada {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  .status-em-investigacao {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  .status-encerrada {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .nivel-risco-critico {
+    @apply bg-red-100 text-red-800 border-red-200;
+  }
+  
+  .nivel-risco-alto {
+    @apply bg-orange-100 text-orange-800 border-orange-200;
+  }
+  
+  .nivel-risco-medio {
+    @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+  }
+  
+  .nivel-risco-baixo {
+    @apply bg-green-100 text-green-800 border-green-200;
+  }
+  
+  .nivel-risco-minimo {
+    @apply bg-gray-100 text-gray-800 border-gray-200;
+  }
+}
