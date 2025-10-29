@@ -40,13 +40,12 @@ export default function Sidebar({ isOpen, onClose, userProfile }: SidebarProps) 
           { name: 'Minhas Denúncias', href: '/dashboard/denuncias/minhas', icon: ClipboardList },
         ];
 
-      case PerfilUsuario.ANALISTA:
-        return [
-          ...baseItems,
-          { name: 'Análise Pendente', href: '/dashboard/analise/pendentes', icon: AlertTriangle },
-          { name: 'Meus Casos', href: '/dashboard/analise/minhas', icon: ClipboardList },
-          { name: 'Submeter Casos', href: '/dashboard/analise/submeter', icon: Shield },
-        ];
+        case PerfilUsuario.ANALISTA:
+          return [
+            ...baseItems,
+            { name: 'Denúncias por Analisar', href: '/dashboard/analise/pendentes', icon: AlertTriangle },
+            { name: 'Denúncias Submetidas', href: '/dashboard/analise/submetidas', icon: Shield },
+          ];
 
       case PerfilUsuario.AUTORIDADE:
         return [

@@ -96,4 +96,11 @@ export const denunciaService = {
   getEvidenciaUrl(instituicaoId: string, denunciaId: string, filename: string): string {
     return `${api.defaults.baseURL}/denuncias/uploads/${instituicaoId}/${denunciaId}/${filename}`;
   },
+
+  // Buscar estatísticas mensais
+  async getEstatisticasMensais(ano?: number): Promise<any> {
+    const params = ano ? `?ano=${ano}` : '';
+    const response = await api.get<ApiResponse<any>>(`/denuncias/estatisticas/mensais${params}`);
+    return response.data.data!;
+  },
 };

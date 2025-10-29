@@ -2,7 +2,6 @@ import { useAuthStore } from '@/store/authStore';
 import { PerfilUsuario } from '@/types';
 import { Link } from 'react-router-dom';
 import { useDenuncias, useDenunciaStats } from '@/hooks/useDenuncias';
-import { DashboardCharts } from '@/components/Charts';
 import { 
   FileText, 
   AlertTriangle, 
@@ -12,6 +11,7 @@ import {
   Plus,
   Loader2
 } from 'lucide-react';
+import { CasosPendentesChart, CasosSubmetidosChart } from '@/components/Charts';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -160,7 +160,7 @@ export default function DashboardPage() {
       case PerfilUsuario.ANALISTA:
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="card">
                 <div className="card-body">
                   <div className="flex items-center">
@@ -178,22 +178,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="card">
-                <div className="card-body">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-unodc-gold-100 rounded-lg">
-                      <Clock className="h-6 w-6 text-unodc-gold-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Em Análise</p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
-                         recentDenuncias.filter(d => d.status === 'EM_ANALISE').length}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               <div className="card">
                 <div className="card-body">
@@ -213,165 +197,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="text-lg font-semibold text-gray-900">Tipos de Tráfico</h3>
-                </div>
-                <div className="card-body">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Tráfico Sexual</span>
-                      <span className="text-sm font-medium">42%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-red-500 h-3 rounded-full" style={{ width: '42%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Trabalho Forçado</span>
-                      <span className="text-sm font-medium">28%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-orange-500 h-3 rounded-full" style={{ width: '28%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Adoção Ilegal</span>
-                      <span className="text-sm font-medium">18%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-yellow-500 h-3 rounded-full" style={{ width: '18%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Outros</span>
-                      <span className="text-sm font-medium">12%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-gray-500 h-3 rounded-full" style={{ width: '12%' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="text-lg font-semibold text-gray-900">Vítimas por Idade</h3>
-                </div>
-                <div className="card-body">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Crianças (0-12)</span>
-                      <span className="text-sm font-medium">35%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-red-600 h-3 rounded-full" style={{ width: '35%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Adolescentes (13-17)</span>
-                      <span className="text-sm font-medium">40%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-orange-500 h-3 rounded-full" style={{ width: '40%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Adultos (18+)</span>
-                      <span className="text-sm font-medium">25%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-yellow-500 h-3 rounded-full" style={{ width: '25%' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="text-lg font-semibold text-gray-900">Vulnerabilidades</h3>
-                </div>
-                <div className="card-body">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Pobreza</span>
-                      <span className="text-sm font-medium">68%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-red-500 h-2 rounded-full" style={{ width: '68%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Migração</span>
-                      <span className="text-sm font-medium">45%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-orange-500 h-2 rounded-full" style={{ width: '45%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Orfandade</span>
-                      <span className="text-sm font-medium">32%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '32%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Analfabetismo</span>
-                      <span className="text-sm font-medium">28%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '28%' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h3 className="text-lg font-semibold text-gray-900">Distritos com Mais Casos</h3>
-                </div>
-                <div className="card-body">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Maputo Cidade</span>
-                      <span className="text-sm font-medium">45 casos</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-red-500 h-2 rounded-full" style={{ width: '90%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Matola</span>
-                      <span className="text-sm font-medium">28 casos</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-orange-500 h-2 rounded-full" style={{ width: '56%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Beira</span>
-                      <span className="text-sm font-medium">18 casos</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '36%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Nampula</span>
-                      <span className="text-sm font-medium">12 casos</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '24%' }}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         );
 
@@ -643,26 +468,30 @@ export default function DashboardPage() {
             </p>
           </div>
           
-          <Link
-            to="/dashboard/denuncias/nova"
-            className="inline-flex items-center px-4 py-2 bg-unodc-blue-500 hover:bg-unodc-blue-600 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Nova Denúncia
-          </Link>
+          {user?.perfil === PerfilUsuario.OPERADOR && (
+            <Link
+              to="/dashboard/denuncias/nova"
+              className="inline-flex items-center px-4 py-2 bg-unodc-blue-500 hover:bg-unodc-blue-600 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Nova Denúncia
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Seção de Gráficos */}
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Análise de Casos</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CasosPendentesChart />
+            <CasosSubmetidosChart />
+          </div>
         </div>
       </div>
 
       {getDashboardContent()}
-      
-      {/* Seção de Gráficos */}
-      <div className="mt-8">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Análise de Dados</h2>
-          <p className="text-gray-600">Visualização de casos pendentes, em análise e submetidos</p>
-        </div>
-        <DashboardCharts />
-      </div>
     </div>
   );
 }

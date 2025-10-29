@@ -41,15 +41,24 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsSubmitting(true);
-      console.log('🔍 Dados do formulário:', data);
+      console.log('🔍 Dados do formulário:', JSON.stringify(data, null, 2));
       
-      const response = await authService.login(data);
+      // Garantir que instituicaoId seja maiúsculo
+      const loginData = {
+        ...data,
+        instituicaoId: data.instituicaoId.toUpperCase()
+      };
+      
+      console.log('🔍 Dados corrigidos:', JSON.stringify(loginData, null, 2));
+      
+      const response = await authService.login(loginData);
       console.log('✅ Resposta do login:', response);
       login(response);
       navigate('/dashboard');
     } catch (error: any) {
       console.error('❌ Erro no login:', error);
       console.error('❌ Detalhes do erro:', error.response?.data);
+      console.error('❌ Status do erro:', error.response?.status);
       
       if (error.response?.status === 401) {
         setError('root', {

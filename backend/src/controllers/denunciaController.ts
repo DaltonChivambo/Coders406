@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Denuncia, Historico } from '../models';
+import { Denuncia, Historico, Usuario } from '../models';
 import { createError, createNotFoundError } from '../middleware/errorHandler';
 import { IAuthRequest, IDenunciaFilters, IPaginatedResponse, TipoObservacao, TipoEvidencia, StatusDenuncia } from '../types';
 import { uploadMultiple } from '../middleware/upload';
@@ -643,6 +643,94 @@ export const getStatusPublicoDenuncia = async (req: Request, res: Response): Pro
     });
   } catch (error) {
     console.error('Erro ao buscar status da denúncia:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+};
+
+// Estatísticas de denúncias por mês
+export const getEstatisticasMensais = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { ano = new Date().getFullYear() } = req.query;
+    const userInstituicaoId = (req as any).user?.instituicaoId;
+    
+    // Construir filtro baseado na instituição do usuário
+    const matchFilter: any = {
+      dataRegistro: {
+        $gte: new Date(`${ano}-01-01`),
+        $lt: new Date(`${parseInt(ano as string) + 1}-01-01`)
+      },
+      instituicoesComAcesso: { $in: [new Types.ObjectId(userInstituicaoId)] }
+    };
+    
+    // Pipeline de agregação para estatísticas mensais
+    const pipeline = [
+      {
+        $match: matchFilter
+      },
+      {
+        $group: {
+          _id: {
+            mes: { $month: '$dataRegistro' },
+            status: '$status'
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.mes',
+          statuses: {
+            $push: {
+              status: '$_id.status',
+              count: '$count'
+            }
+          }
+        }
+      },
+      {
+        $sort: { _id: 1 as 1 }
+      }
+    ];
+
+    const resultados = await Denuncia.aggregate(pipeline);
+    
+    // Preparar dados para os gráficos
+    const meses = [
+      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+    ];
+
+    const dadosPendentes = meses.map((mes, index) => {
+      const mesData = resultados.find(r => r._id === index + 1);
+      const pendentes = mesData?.statuses.find((s: any) => 
+        ['AGUARDANDO_TRIAGEM', 'EM_ANALISE', 'AGUARDANDO_INFORMACOES'].includes(s.status)
+      )?.count || 0;
+      
+      return { mes, casos: pendentes };
+    });
+
+    const dadosSubmetidos = meses.map((mes, index) => {
+      const mesData = resultados.find(r => r._id === index + 1);
+      const submetidos = mesData?.statuses.find((s: any) => 
+        s.status === 'SUBMETIDO_AUTORIDADE'
+      )?.count || 0;
+      
+      return { mes, casos: submetidos };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        casosPendentes: dadosPendentes,
+        casosSubmetidos: dadosSubmetidos,
+        ano: parseInt(ano as string)
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas mensais:', error);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor'
