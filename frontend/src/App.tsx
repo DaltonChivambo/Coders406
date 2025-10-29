@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 
 // Páginas
@@ -14,6 +14,7 @@ import VerificarOportunidadePage from '@/pages/VerificarOportunidadePage';
 import VerificarStatusPage from '@/pages/VerificarStatusPage';
 import NovaDenunciaPage from '@/pages/NovaDenunciaPage';
 import AnalisePendentePage from '@/pages/AnalisePendentePage';
+import DetalheDenunciaPage from '@/pages/DetalheDenunciaPage';
 import MeusCasosPage from '@/pages/MeusCasosPage';
 import SubmeterCasosPage from '@/pages/SubmeterCasosPage';
 
@@ -32,7 +33,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuth();
 
   // Verificar se há token válido no localStorage
   useEffect(() => {
@@ -111,6 +112,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <AnalisePendentePage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/denuncias/:id"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <DetalheDenunciaPage />
                   </Layout>
                 </ProtectedRoute>
               }

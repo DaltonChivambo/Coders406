@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDenuncias } from '@/hooks/useDenuncias';
 import { StatusDenuncia } from '@/types';
 import { 
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 
 export default function AnalisePendentePage() {
+  const navigate = useNavigate();
   const { denuncias, isLoading, error } = useDenuncias({
     status: StatusDenuncia.AGUARDANDO_TRIAGEM
   });
@@ -103,13 +105,12 @@ export default function AnalisePendentePage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-unodc-blue-500">
+                    <button 
+                      onClick={() => navigate(`/dashboard/denuncias/${denuncia._id}`)}
+                      className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-unodc-blue-500"
+                    >
                       <Eye className="w-4 h-4 mr-2" />
                       Ver Detalhes
-                    </button>
-                    <button className="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-unodc-blue-600 hover:bg-unodc-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-unodc-blue-500">
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Iniciar Análise
                     </button>
                   </div>
                 </div>

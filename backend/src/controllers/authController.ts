@@ -101,6 +101,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         nome: user.nome,
         email: user.email,
         perfil: user.perfil,
+        ativo: user.ativo,
         instituicao: {
           id: user.instituicaoId._id.toString(),
           nome: (user.instituicaoId as any).nome,

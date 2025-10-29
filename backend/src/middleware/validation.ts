@@ -81,7 +81,7 @@ export const createDenunciaSchema = z.object({
 
 // Schema de validação para atualização de status
 export const updateStatusSchema = z.object({
-  status: z.enum(['INCOMPLETA', 'SUSPEITA', 'PROVAVEL', 'DESCARTADA', 'EM_INVESTIGACAO_INTERNA', 'ENCERRADA_SEM_PROCEDENCIA', 'SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE']),
+  status: z.enum(['INCOMPLETA', 'SUSPEITA', 'PROVAVEL', 'DESCARTADA', 'EM_INVESTIGACAO_INTERNA', 'ENCERRADA_SEM_PROCEDENCIA', 'SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'SUBMETIDO_AUTORIDADE', 'TRAFICO_HUMANO_CONFIRMADO']),
   justificativa: z.string().max(1000, 'Justificativa muito longa').optional(),
   observacao: z.string().max(2000, 'Observação muito longa').optional()
 });

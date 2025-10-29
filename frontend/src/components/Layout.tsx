@@ -1,5 +1,5 @@
 import { ReactNode, useState } from 'react';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 
@@ -9,7 +9,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuthStore();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50">

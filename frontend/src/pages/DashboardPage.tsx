@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { PerfilUsuario } from '@/types';
 import { Link } from 'react-router-dom';
 import { useDenuncias, useDenunciaStats } from '@/hooks/useDenuncias';
@@ -14,7 +14,8 @@ import {
 import { CasosPendentesChart, CasosSubmetidosChart } from '@/components/Charts';
 
 export default function DashboardPage() {
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuth();
+  
   
   // Buscar dados reais das denúncias
   const { denuncias: recentDenuncias, isLoading: isLoadingDenuncias } = useDenuncias({ 
@@ -24,6 +25,7 @@ export default function DashboardPage() {
   });
   
   const { stats, isLoading: isLoadingStats } = useDenunciaStats();
+
 
   const getDashboardContent = () => {
     switch (user?.perfil) {
@@ -40,7 +42,7 @@ export default function DashboardPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Minhas Denúncias</p>
                       <p className="text-2xl font-bold text-gray-900">
-                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.totalDenuncias}
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats?.totalDenuncias || 0}
                       </p>
                     </div>
                   </div>
@@ -56,7 +58,7 @@ export default function DashboardPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Pendentes</p>
                       <p className="text-2xl font-bold text-gray-900">
-                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.denunciasPendentes}
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats?.denunciasPendentes || 0}
                       </p>
                     </div>
                   </div>
@@ -72,7 +74,7 @@ export default function DashboardPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Resolvidos</p>
                       <p className="text-2xl font-bold text-gray-900">
-                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.casosResolvidos}
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats?.casosResolvidos || 0}
                       </p>
                     </div>
                   </div>
@@ -263,7 +265,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Taxa de Resolução</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.taxaResolucao}%</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats?.taxaResolucao || 0}%</p>
                     </div>
                   </div>
                 </div>
@@ -337,7 +339,7 @@ export default function DashboardPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Total de Denúncias</p>
                       <p className="text-2xl font-bold text-gray-900">
-                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.totalDenuncias}
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats?.totalDenuncias || 0}
                       </p>
                     </div>
                   </div>
@@ -353,7 +355,7 @@ export default function DashboardPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Casos Ativos</p>
                       <p className="text-2xl font-bold text-gray-900">
-                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.casosAtivos}
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats?.casosAtivos || 0}
                       </p>
                     </div>
                   </div>
@@ -369,7 +371,7 @@ export default function DashboardPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Resolvidos</p>
                       <p className="text-2xl font-bold text-gray-900">
-                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.casosResolvidos}
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats?.casosResolvidos || 0}
                       </p>
                     </div>
                   </div>
@@ -385,7 +387,7 @@ export default function DashboardPage() {
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600">Taxa de Resolução</p>
                       <p className="text-2xl font-bold text-gray-900">
-                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats.taxaResolucao}%
+                        {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : stats?.taxaResolucao || 0}%
                       </p>
                     </div>
                   </div>

@@ -49,15 +49,9 @@ export const denunciaService = {
   // Atualizar status da denúncia
   async updateStatus(
     id: string, 
-    status: string, 
-    justificativa?: string, 
-    observacao?: string
+    data: { status: string; justificativa?: string; observacoes?: string }
   ): Promise<Denuncia> {
-    const response = await api.patch<ApiResponse<Denuncia>>(`/denuncias/${id}/status`, {
-      status,
-      justificativa,
-      observacao,
-    });
+    const response = await api.patch<ApiResponse<Denuncia>>(`/denuncias/${id}/status`, data);
     return response.data.data!;
   },
 
@@ -77,6 +71,12 @@ export const denunciaService = {
         },
       }
     );
+    return response.data.data!;
+  },
+
+  // Adicionar observação
+  async adicionarObservacao(id: string, observacao: { tipo: string; conteudo: string; visibilidade: string }): Promise<any> {
+    const response = await api.post<ApiResponse<any>>(`/denuncias/${id}/observacoes`, observacao);
     return response.data.data!;
   },
 

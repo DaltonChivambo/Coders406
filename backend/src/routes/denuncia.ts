@@ -8,7 +8,8 @@ import {
   uploadEvidencias,
   getEvidencia,
   getDenunciaByCodigo,
-  getEstatisticasMensais
+  getEstatisticasMensais,
+  adicionarObservacao
 } from '../controllers/denunciaController';
 import { authenticateToken } from '../middleware/auth';
 import { canAccessDenuncia, canModifyDenuncia } from '../middleware/authorization';
@@ -53,6 +54,13 @@ router.post('/:id/evidencias',
 router.get('/uploads/:instituicaoId/:denunciaId/:filename', 
   authenticateToken, 
   getEvidencia
+);
+
+// POST /api/denuncias/:id/observacoes - Adicionar observação (autenticado)
+router.post('/:id/observacoes', 
+  authenticateToken, 
+  canAccessDenuncia, 
+  adicionarObservacao
 );
 
 // GET /api/denuncias/estatisticas/mensais - Estatísticas mensais (autenticado)

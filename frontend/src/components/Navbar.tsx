@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { Menu, X, Bell, User, LogOut, FileText, BarChart3, Home, Search } from 'lucide-react';
 
 interface NavbarProps {
@@ -8,7 +8,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
-  const { user, logout } = useAuthStore();
+  const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -117,7 +117,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                         {user?.nome}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {user?.instituicao.nome}
+                        {user?.instituicao?.nome || user?.instituicaoNome || 'Instituição'}
                       </p>
                     </div>
                   </button>
@@ -133,7 +133,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                           {user?.email}
                         </p>
                         <p className="text-xs text-unodc-blue-600 mt-1">
-                          {user?.perfil.replace('_', ' ')}
+                          {user?.perfil?.replace('_', ' ') || 'Usuário'}
                         </p>
                       </div>
                       <div className="py-1">

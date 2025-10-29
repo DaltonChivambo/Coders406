@@ -222,7 +222,6 @@ export const getDenunciaById = async (req: IAuthRequest, res: Response): Promise
       .populate('instituicaoOrigemId', 'nome sigla tipo')
       .populate('analistaResponsavelId', 'nome email')
       .populate('instituicaoDestinoId', 'nome sigla tipo')
-      .populate('investidorResponsavelId', 'nome email')
       .populate('equipaInvestigacao', 'nome email')
       .populate('instituicoesComAcesso', 'nome sigla');
 
@@ -731,6 +730,53 @@ export const getEstatisticasMensais = async (req: Request, res: Response): Promi
     });
   } catch (error) {
     console.error('Erro ao buscar estatísticas mensais:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+};
+
+// Adicionar observação à denúncia
+export const adicionarObservacao = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { tipo, conteudo, visibilidade } = req.body;
+
+    if (!tipo || !conteudo || !visibilidade) {
+      res.status(400).json({
+        success: false,
+        message: 'Tipo, conteúdo e visibilidade são obrigatórios'
+      });
+      return;
+    }
+
+    const denuncia = await Denuncia.findById(id);
+    if (!denuncia) {
+      res.status(404).json({
+        success: false,
+        message: 'Denúncia não encontrada'
+      });
+      return;
+    }
+
+    // Adicionar observação ao array de observações internas
+    denuncia.observacoesInternas.push({
+      usuarioId: new Types.ObjectId(req.user!.id),
+      texto: conteudo,
+      data: new Date(),
+      tipo: TipoObservacao.NOTA
+    });
+
+    await denuncia.save();
+
+    res.json({
+      success: true,
+      message: 'Observação adicionada com sucesso',
+      data: denuncia.observacoesInternas[denuncia.observacoesInternas.length - 1]
+    });
+  } catch (error) {
+    console.error('Erro ao adicionar observação:', error);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor'

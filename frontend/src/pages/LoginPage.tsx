@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/authService';
 import { ArrowLeft, Eye, EyeOff, Loader2, Shield, Building2, Mail, Lock, AlertCircle } from 'lucide-react';
 
@@ -17,7 +17,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuthStore();
+  const { login, isAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,7 +53,19 @@ export default function LoginPage() {
       
       const response = await authService.login(loginData);
       console.log('✅ Resposta do login:', response);
-      login(response);
+      
+      // Mapear os dados do usuário para o formato esperado pelo useAuth
+      const userData = {
+        id: response.user.id,
+        nome: response.user.nome,
+        email: response.user.email,
+        perfil: response.user.perfil,
+        instituicaoId: response.user.instituicao.id,
+        instituicaoNome: response.user.instituicao.nome,
+        ativo: response.user.ativo
+      };
+      
+      login(userData, response.token);
       navigate('/dashboard');
     } catch (error: any) {
       console.error('❌ Erro no login:', error);

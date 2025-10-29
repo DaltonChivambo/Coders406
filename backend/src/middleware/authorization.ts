@@ -59,7 +59,7 @@ export const canAccessDenuncia = async (req: IAuthRequest, res: Response, next: 
       return;
     }
 
-    const { denunciaId } = req.params;
+    const denunciaId = req.params.id || req.params.denunciaId;
     
     if (!denunciaId) {
       res.status(400).json({ 
@@ -87,6 +87,23 @@ export const canAccessDenuncia = async (req: IAuthRequest, res: Response, next: 
       req.denuncia = denuncia;
       next();
       return;
+    }
+
+    // PGR (AUTORIDADE) pode ver denúncias submetidas para autoridades
+    if (req.user.perfil === PerfilUsuario.AUTORIDADE) {
+      const statusPermitidos = [
+        'SUBMETIDO_AUTORIDADE',
+        'EM_INVESTIGACAO',
+        'ENCAMINHADO_JUSTICA',
+        'TRAFICO_HUMANO_CONFIRMADO',
+        'ARQUIVADO'
+      ];
+      
+      if (statusPermitidos.includes(denuncia.status)) {
+        req.denuncia = denuncia;
+        next();
+        return;
+      }
     }
 
     // Verificar se o usuário tem acesso baseado na visibilidade
