@@ -783,3 +783,68 @@ export const adicionarObservacao = async (req: IAuthRequest, res: Response): Pro
     });
   }
 };
+
+// Criar denúncia pública (sem autenticação)
+export const createDenunciaPublica = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const denunciaData = req.body;
+    
+    // Adicionar campos obrigatórios para denúncia pública
+    denunciaData.nivelRisco = 'MEDIO'; // Valor padrão
+    denunciaData.status = 'AGUARDANDO_TRIAGEM'; // Status inicial
+    denunciaData.tipoDenuncia = 'PUBLICA'; // Sempre pública
+    denunciaData.canalDenuncia = 'WEB'; // Sempre web para denúncias públicas
+    
+    // Buscar instituição receptora padrão (ONG)
+    const { Instituicao } = await import('../models');
+    const instituicaoReceptora = await Instituicao.findOne({ tipo: 'RECEPTORA' });
+    
+    if (!instituicaoReceptora) {
+      res.status(500).json({
+        success: false,
+        message: 'Nenhuma instituição receptora encontrada'
+      });
+      return;
+    }
+    
+    // Configurar dados da denúncia pública
+    denunciaData.instituicaoOrigemId = instituicaoReceptora._id;
+    denunciaData.instituicoesComAcesso = [instituicaoReceptora._id];
+    
+    // Gerar código de rastreamento
+    const codigoInstituicao = instituicaoReceptora.sigla || 'PUB';
+    const timestamp = Date.now().toString().slice(-6);
+    const randomCode = Math.random().toString(36).substring(2, 5).toUpperCase();
+    denunciaData.codigoRastreio = `HUMAI-${codigoInstituicao}-${timestamp}-${randomCode}`;
+    
+    // Criar a denúncia
+    const denuncia = new Denuncia(denunciaData);
+    await denuncia.save();
+    
+    // Criar histórico inicial
+    const historico = new Historico({
+      denunciaId: denuncia._id,
+      acao: 'CRIADA',
+      descricao: 'Denúncia pública criada',
+      usuarioId: null, // Sem usuário para denúncias públicas
+      data: new Date()
+    });
+    await historico.save();
+    
+    res.status(201).json({
+      success: true,
+      message: 'Denúncia pública criada com sucesso',
+      data: {
+        id: denuncia._id,
+        codigoRastreio: denuncia.codigoRastreio,
+        status: denuncia.status
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao criar denúncia pública:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+};

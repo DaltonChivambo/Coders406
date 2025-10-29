@@ -197,3 +197,56 @@ export const denunciaFiltersSchema = z.object({
   instituicaoId: z.string().optional()
 });
 
+// Schema de validação para denúncia pública
+export const createDenunciaPublicaSchema = z.object({
+  tipoTrafico: z.array(z.enum(['SEXUAL', 'LABORAL', 'ADOCAO_ILEGAL', 'ORGAOS', 'SERVIDAO', 'MIGRACAO_FORCADA'])).min(1, 'Selecione pelo menos um tipo de tráfico'),
+  localizacao: z.object({
+    provincia: z.string().min(1, 'Província é obrigatória'),
+    distrito: z.string().min(1, 'Distrito é obrigatório'),
+    bairro: z.string().min(1, 'Bairro é obrigatório'),
+    localEspecifico: z.string().min(1, 'Local específico é obrigatório'),
+    coordenadas: z.object({
+      lat: z.number().min(-90).max(90).optional(),
+      lng: z.number().min(-180).max(180).optional()
+    }).optional()
+  }),
+  descricao: z.string().min(10, 'Descrição deve ter pelo menos 10 caracteres').max(5000, 'Descrição muito longa'),
+  contextoAdicional: z.string().max(2000, 'Contexto adicional muito longo').optional(),
+  vitimas: z.array(z.object({
+    nome: z.string().optional(),
+    genero: z.enum(['MASCULINO', 'FEMININO', 'OUTRO', 'NAO_INFORMADO']),
+    idade: z.number().min(0).max(120).optional(),
+    faixaEtaria: z.enum(['CRIANCA', 'ADOLESCENTE', 'ADULTO', 'IDOSO']),
+    nacionalidade: z.string().min(1, 'Nacionalidade é obrigatória'),
+    vulnerabilidade: z.array(z.enum(['DESEMPREGADO', 'ESTUDANTE', 'MIGRANTE', 'MENOR', 'DEFICIENTE']))
+  })).min(1, 'Adicione pelo menos uma vítima'),
+  suspeitos: z.array(z.object({
+    identificacao: z.string().optional(),
+    sexo: z.string().min(1, 'Sexo é obrigatório'),
+    idadeAproximada: z.number().min(0).max(120).optional(),
+    relacaoVitima: z.enum(['VIZINHO', 'FAMILIAR', 'DESCONHECIDO', 'RECRUTADOR', 'EMPREGADOR']),
+    descricaoFisica: z.string().optional()
+  })).min(1, 'Adicione pelo menos um suspeito'),
+  contatos: z.object({
+    telefoneDenunciante: z.string().optional(),
+    telefoneSuspeito: z.string().optional(),
+    telefoneVitima: z.string().optional(),
+    urls: z.array(z.string().url('URL inválida')).optional(),
+    outrosContatos: z.string().optional()
+  }).optional(),
+  denunciante: z.object({
+    nome: z.string().optional(),
+    telefone: z.string().optional(),
+    email: z.string().email('Email inválido').optional(),
+    localizacao: z.string().optional(),
+    anonimo: z.boolean()
+  }).optional(),
+  evidencias: z.array(z.object({
+    tipo: z.enum(['IMAGEM', 'VIDEO', 'AUDIO', 'DOCUMENTO', 'URL']),
+    nomeArquivo: z.string().optional(),
+    url: z.string().optional(),
+    descricao: z.string().optional()
+  })).optional(),
+  dataIncidente: z.string().datetime().optional()
+});
+

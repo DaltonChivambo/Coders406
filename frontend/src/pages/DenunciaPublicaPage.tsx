@@ -166,7 +166,7 @@ export default function DenunciaPublicaPage() {
             }
           };
 
-      const response = await denunciaService.createDenuncia(denunciaData);
+      const response = await denunciaService.createDenunciaPublica(denunciaData);
       setCodigoRastreio(response.codigoRastreio);
       setIsSuccess(true);
     } catch (error) {

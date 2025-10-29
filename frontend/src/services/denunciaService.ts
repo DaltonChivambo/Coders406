@@ -8,9 +8,15 @@ import {
 } from '@/types';
 
 export const denunciaService = {
-  // Criar denúncia
+  // Criar denúncia (autenticado)
   async createDenuncia(denunciaData: DenunciaFormData): Promise<Denuncia> {
     const response = await api.post<ApiResponse<Denuncia>>('/denuncias', denunciaData);
+    return response.data.data!;
+  },
+
+  // Criar denúncia pública (sem autenticação)
+  async createDenunciaPublica(denunciaData: DenunciaFormData): Promise<{ id: string; codigoRastreio: string; status: string }> {
+    const response = await api.post<ApiResponse<{ id: string; codigoRastreio: string; status: string }>>('/publico/denuncias', denunciaData);
     return response.data.data!;
   },
 
