@@ -3,22 +3,17 @@ import { Request } from 'express';
 
 // Enums
 export enum TipoInstituicao {
-  RECEPTORA = 'RECEPTORA',
-  INVESTIGATIVA = 'INVESTIGATIVA',
-  COORDENADORA = 'COORDENADORA',
-  ESCOLA = 'ESCOLA',
-  HOSPITAL = 'HOSPITAL',
-  IGREJA = 'IGREJA'
+  GESTORA = 'GESTORA',      // HUMAI - gestão geral do sistema
+  RECEPTORA = 'RECEPTORA',   // ONGs que recebem denúncias
+  AUTORIDADE = 'AUTORIDADE', // PGR - atualiza status
+  ESCOLA = 'ESCOLA'          // Escolas - fazem denúncias diretas
 }
 
 export enum PerfilUsuario {
-  AGENTE_COMUNITARIO = 'AGENTE_COMUNITARIO',
-  OPERADOR = 'OPERADOR',
-  ANALISTA = 'ANALISTA',
-  SUPERVISOR = 'SUPERVISOR',
-  COORDENADOR_LOCAL = 'COORDENADOR_LOCAL',
-  INVESTIGADOR = 'INVESTIGADOR',
-  COORDENADOR_ASSOCIACAO = 'COORDENADOR_ASSOCIACAO'
+  GESTOR_SISTEMA = 'GESTOR_SISTEMA',     // HUMAI - gestão geral
+  OPERADOR = 'OPERADOR',                  // ONGs e Escolas
+  ANALISTA = 'ANALISTA',                  // ONGs - especialista de tráfico
+  AUTORIDADE = 'AUTORIDADE'               // PGR - atualiza status
 }
 
 export enum TipoDenuncia {
@@ -53,15 +48,21 @@ export enum NivelRisco {
 }
 
 export enum StatusDenuncia {
-  INCOMPLETA = 'INCOMPLETA',
-  SUSPEITA = 'SUSPEITA',
-  PROVAVEL = 'PROVAVEL',
-  DESCARTADA = 'DESCARTADA',
-  EM_INVESTIGACAO_INTERNA = 'EM_INVESTIGACAO_INTERNA',
-  ENCERRADA_SEM_PROCEDENCIA = 'ENCERRADA_SEM_PROCEDENCIA',
-  SENDO_PROCESSADO_AUTORIDADES = 'SENDO_PROCESSADO_AUTORIDADES',
-  EM_TRANSITO_AGENCIAS = 'EM_TRANSITO_AGENCIAS',
-  ENCERRADO_AUTORIDADE = 'ENCERRADO_AUTORIDADE'
+  // Operador (ONG/Escola)
+  AGUARDANDO_TRIAGEM = 'AGUARDANDO_TRIAGEM',
+  
+  // Analista (ONG)
+  EM_ANALISE = 'EM_ANALISE',
+  AGUARDANDO_INFORMACOES = 'AGUARDANDO_INFORMACOES',
+  
+  // Submissão
+  SUBMETIDO_AUTORIDADE = 'SUBMETIDO_AUTORIDADE',
+  
+  // PGR (Autoridade)
+  EM_INVESTIGACAO = 'EM_INVESTIGACAO',
+  ARQUIVADO = 'ARQUIVADO',
+  ENCAMINHADO_JUSTICA = 'ENCAMINHADO_JUSTICA',
+  TRAFICO_HUMANO_CONFIRMADO = 'TRAFICO_HUMANO_CONFIRMADO'
 }
 
 export enum Genero {
@@ -166,6 +167,8 @@ export interface IInstituicao extends Document {
   sigla: string;
   provincia: string;
   distrito: string;
+  bairro?: string;
+  codigoAcesso: string;
   contacto: {
     telefone: string;
     email: string;
@@ -402,6 +405,7 @@ export interface ILoginResponse {
     nome: string;
     email: string;
     perfil: PerfilUsuario;
+    ativo: boolean;
     instituicao: {
       id: string;
       nome: string;

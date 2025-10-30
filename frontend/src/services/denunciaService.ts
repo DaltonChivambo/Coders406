@@ -8,9 +8,15 @@ import {
 } from '@/types';
 
 export const denunciaService = {
-  // Criar denúncia
+  // Criar denúncia (autenticado)
   async createDenuncia(denunciaData: DenunciaFormData): Promise<Denuncia> {
     const response = await api.post<ApiResponse<Denuncia>>('/denuncias', denunciaData);
+    return response.data.data!;
+  },
+
+  // Criar denúncia pública (sem autenticação)
+  async createDenunciaPublica(denunciaData: DenunciaFormData): Promise<{ id: string; codigoRastreio: string; status: string }> {
+    const response = await api.post<ApiResponse<{ id: string; codigoRastreio: string; status: string }>>('/publico/denuncias', denunciaData);
     return response.data.data!;
   },
 
@@ -49,15 +55,9 @@ export const denunciaService = {
   // Atualizar status da denúncia
   async updateStatus(
     id: string, 
-    status: string, 
-    justificativa?: string, 
-    observacao?: string
+    data: { status: string; justificativa?: string; observacoes?: string }
   ): Promise<Denuncia> {
-    const response = await api.patch<ApiResponse<Denuncia>>(`/denuncias/${id}/status`, {
-      status,
-      justificativa,
-      observacao,
-    });
+    const response = await api.patch<ApiResponse<Denuncia>>(`/denuncias/${id}/status`, data);
     return response.data.data!;
   },
 
@@ -80,6 +80,12 @@ export const denunciaService = {
     return response.data.data!;
   },
 
+  // Adicionar observação
+  async adicionarObservacao(id: string, observacao: { tipo: string; conteudo: string; visibilidade: string }): Promise<any> {
+    const response = await api.post<ApiResponse<any>>(`/denuncias/${id}/observacoes`, observacao);
+    return response.data.data!;
+  },
+
   // Buscar denúncia por código de rastreio (interno - apenas agências)
   async getDenunciaByCodigo(codigo: string): Promise<Denuncia> {
     const response = await api.get<ApiResponse<Denuncia>>(`/denuncias/rastreio/${codigo}`);
@@ -95,5 +101,12 @@ export const denunciaService = {
   // Obter arquivo de evidência
   getEvidenciaUrl(instituicaoId: string, denunciaId: string, filename: string): string {
     return `${api.defaults.baseURL}/denuncias/uploads/${instituicaoId}/${denunciaId}/${filename}`;
+  },
+
+  // Buscar estatísticas mensais
+  async getEstatisticasMensais(ano?: number): Promise<any> {
+    const params = ano ? `?ano=${ano}` : '';
+    const response = await api.get<ApiResponse<any>>(`/denuncias/estatisticas/mensais${params}`);
+    return response.data.data!;
   },
 };

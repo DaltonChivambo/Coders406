@@ -52,10 +52,13 @@ const denunciaSchema = z.object({
     url: z.string().optional(),
   })).optional(),
   denunciante: z.object({
-    nome: z.string(),
-    telefone: z.string(),
-    localizacao: z.string(),
+    nome: z.string().optional(),
+    telefone: z.string().optional(),
+    localizacao: z.string().optional(),
     anonimo: z.boolean(),
+  }).refine((d) => d.anonimo === true || (!!d.nome && !!d.telefone && !!d.localizacao), {
+    message: 'Nome, telefone e localização são obrigatórios quando não for anônima',
+    path: ['nome']
   }),
 });
 
@@ -68,7 +71,7 @@ export default function DenunciaPublicaPage() {
   const [codigoRastreio, setCodigoRastreio] = useState('');
   const [evidencias, setEvidencias] = useState<File[]>([]);
   const [abordagemOnlineAtiva, setAbordagemOnlineAtiva] = useState(false);
-  const [denunciaAnonima, setDenunciaAnonima] = useState(false);
+  const [denunciaAnonima, setDenunciaAnonima] = useState(true);
 
   const {
     register,
@@ -85,7 +88,7 @@ export default function DenunciaPublicaPage() {
       vitimas: [{ genero: Genero.NAO_INFORMADO, faixaEtaria: FaixaEtaria.ADULTO, nacionalidade: '', vulnerabilidade: [] }],
       suspeitos: [{ sexo: '', relacaoVitima: RelacaoVitima.DESCONHECIDO, descricaoFisica: '' }],
       contatos: { telefoneDenunciante: '', urls: [] },
-      denunciante: { nome: '', telefone: '', localizacao: '', anonimo: false },
+      denunciante: { nome: '', telefone: '', localizacao: '', anonimo: true },
     },
   });
 
@@ -166,7 +169,7 @@ export default function DenunciaPublicaPage() {
             }
           };
 
-      const response = await denunciaService.createDenuncia(denunciaData);
+      const response = await denunciaService.createDenunciaPublica(denunciaData as any);
       setCodigoRastreio(response.codigoRastreio);
       setIsSuccess(true);
     } catch (error) {
@@ -863,7 +866,7 @@ export default function DenunciaPublicaPage() {
                 
                 <button
                   type="button"
-                  onClick={() => setDenunciaAnonima(!denunciaAnonima)}
+                  onClick={() => { const v = !denunciaAnonima; setDenunciaAnonima(v); setValue('denunciante.anonimo', v, { shouldValidate: true }); }}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-unodc-blue-500 focus:ring-offset-2 ${
                     denunciaAnonima ? 'bg-red-600' : 'bg-gray-300'
                   }`}

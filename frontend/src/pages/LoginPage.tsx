@@ -3,24 +3,21 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
-import { useInstituicaoStore } from '@/store/instituicaoStore';
-import { instituicaoService } from '@/services/instituicaoService';
+import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/authService';
-import { ArrowLeft, Eye, EyeOff, Loader2, Shield, Building2, Mail, Lock, Users, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Loader2, Shield, Building2, Mail, Lock, AlertCircle } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
   senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
-  instituicaoId: z.string().min(1, 'Selecione uma instituição'),
+  instituicaoId: z.string().min(1, 'Digite o código da instituição'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuthStore();
-  const { instituicoes, setInstituicoes, setLoading } = useInstituicaoStore();
+  const { login, isAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,22 +30,6 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  // Carregar instituições
-  useEffect(() => {
-    const loadInstituicoes = async () => {
-      try {
-        setLoading(true);
-        const data = await instituicaoService.getInstituicoes();
-        setInstituicoes(data);
-      } catch (error) {
-        console.error('Erro ao carregar instituições:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadInstituicoes();
-  }, [setInstituicoes, setLoading]);
 
   // Redirecionar se já estiver logado
   useEffect(() => {
@@ -60,21 +41,41 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsSubmitting(true);
-      console.log('🔍 Dados do formulário:', data);
-      console.log('🔍 Instituições disponíveis:', instituicoes);
+      console.log('🔍 Dados do formulário:', JSON.stringify(data, null, 2));
       
-      const response = await authService.login(data);
+      // Garantir que instituicaoId seja maiúsculo
+      const loginData = {
+        ...data,
+        instituicaoId: data.instituicaoId.toUpperCase()
+      };
+      
+      console.log('🔍 Dados corrigidos:', JSON.stringify(loginData, null, 2));
+      
+      const response = await authService.login(loginData);
       console.log('✅ Resposta do login:', response);
-      login(response);
+      
+      // Mapear os dados do usuário para o formato esperado pelo useAuth
+      const userData = {
+        id: (response.user as any).id || (response.user as any)._id,
+        nome: response.user.nome,
+        email: response.user.email,
+        perfil: response.user.perfil,
+        instituicaoId: (response.user.instituicao as any).id || (response.user.instituicao as any)._id,
+        instituicaoNome: response.user.instituicao.nome,
+        ativo: (response.user as any).ativo
+      };
+      
+      login(userData, response.token);
       navigate('/dashboard');
     } catch (error: any) {
       console.error('❌ Erro no login:', error);
       console.error('❌ Detalhes do erro:', error.response?.data);
+      console.error('❌ Status do erro:', error.response?.status);
       
       if (error.response?.status === 401) {
         setError('root', {
           type: 'manual',
-          message: 'Credenciais inválidas. Verifique seu email, senha e instituição.',
+          message: 'Credenciais inválidas. Verifique seu email, senha e código da instituição.',
         });
       } else {
         setError('root', {
@@ -121,11 +122,8 @@ export default function LoginPage() {
               </div>
               
               <h1 className="text-2xl font-bold text-white mb-2">
-                HUMAI
+                SafePath
               </h1>
-              <p className="text-blue-100 text-sm">
-                Sistema de Monitoramento de Tráfico Humano
-              </p>
             </div>
 
             {/* Form */}
@@ -201,30 +199,23 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                {/* Instituição */}
+                {/* Código da Instituição */}
                 <div>
                   <label htmlFor="instituicaoId" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Instituição
+                    Código da Instituição
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Building2 className="h-5 w-5 text-gray-400" />
                     </div>
-                    <select
+                    <input
                       {...register('instituicaoId')}
+                      type="text"
                       id="instituicaoId"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white appearance-none"
-                    >
-                      <option value="">Selecione sua instituição</option>
-                      {instituicoes.map((instituicao) => (
-                        <option key={instituicao._id} value={instituicao._id}>
-                          {instituicao.nome} ({instituicao.sigla})
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <Users className="h-5 w-5 text-gray-400" />
-                    </div>
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white uppercase"
+                      placeholder="Ex: HUMAI1, ONG001, PGR001"
+                      style={{ textTransform: 'uppercase' }}
+                    />
                   </div>
                   {errors.instituicaoId && (
                     <p className="mt-2 text-sm text-red-600 flex items-center">
@@ -232,6 +223,9 @@ export default function LoginPage() {
                       {errors.instituicaoId.message}
                     </p>
                   )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    Digite o código de 6 caracteres da sua instituição
+                  </p>
                 </div>
 
                 {/* Erro geral */}

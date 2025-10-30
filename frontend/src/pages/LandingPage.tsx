@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Shield, Users, BarChart3, FileText, ArrowRight, CheckCircle, Globe, Lock, Star, Award, Heart, Search } from 'lucide-react';
+import { Shield, Users, BarChart3, FileText, ArrowRight, Globe, Heart, Menu, X } from 'lucide-react';
+import { useState } from 'react';
 
 export default function LandingPage() {
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-unodc-blue-50 via-white to-unodc-navy-50">
       {/* Header */}
@@ -14,37 +17,31 @@ export default function LandingPage() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <span className="ml-3 text-xl font-bold text-unodc-navy-900 group-hover:text-unodc-blue-600 transition-colors duration-300">
-                HUMAI
+                SafePath
               </span>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex items-center space-x-6">
-              <Link
-                to="/verificar-oportunidade"
-                className="text-gray-600 hover:text-unodc-blue-600 font-medium text-sm transition-colors duration-200 relative group flex items-center"
-              >
-                <Search className="w-4 h-4 mr-1" />
-                Verificar Oportunidade
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-unodc-blue-500 group-hover:w-full transition-all duration-200"></span>
-              </Link>
-              
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-6">
               <Link
                 to="/relatorios-publicos"
-                className="text-gray-600 hover:text-unodc-blue-600 font-medium text-sm transition-colors duration-200 relative group"
+                className="text-gray-600 hover:text-unodc-blue-600 font-medium text-sm transition-colors duration-200 relative group flex items-center"
               >
+                <BarChart3 className="w-4 h-4 mr-1" />
                 Relatórios
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-unodc-blue-500 group-hover:w-full transition-all duration-200"></span>
               </Link>
               
-              <Link
-                to="/verificar-status"
+              <a
+                href="http://145.241.188.248/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-600 hover:text-unodc-blue-600 font-medium text-sm transition-colors duration-200 relative group flex items-center"
               >
                 <FileText className="w-4 h-4 mr-1" />
-                Verificar Status
+                Verificar Oportunidade
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-unodc-blue-500 group-hover:w-full transition-all duration-200"></span>
-              </Link>
+              </a>
               
               <Link
                 to="/login"
@@ -53,8 +50,53 @@ export default function LandingPage() {
                 Entrar
               </Link>
             </nav>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+            >
+              {showMobileMenu ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        {showMobileMenu && (
+          <div className="md:hidden border-t border-gray-200 bg-white/95 backdrop-blur-xl">
+            <div className="px-4 py-2 space-y-1">
+              <Link
+                to="/relatorios-publicos"
+                onClick={() => setShowMobileMenu(false)}
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-unodc-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Relatórios
+              </Link>
+              
+              <a
+                href="http://145.241.188.248/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setShowMobileMenu(false)}
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-unodc-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Verificar Oportunidade
+              </a>
+
+              <div className="pt-2">
+                <Link
+                  to="/login"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-unodc-blue-500 hover:bg-unodc-blue-600 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  Entrar
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -110,8 +152,8 @@ export default function LandingPage() {
               Como Funciona o Sistema
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-unodc-navy-600 max-w-3xl mx-auto leading-relaxed">
-              Uma plataforma integrada que conecta cidadãos, organizações e autoridades 
-              para combater o tráfico humano de forma coordenada e eficaz.
+              Plataforma integrada que conecta cidadãos, escolas, hospitais, igrejas e autoridades. 
+              As denúncias públicas são enviadas diretamente às autoridades, que atualizam o status (Em investigação, Arquivado ou Tráfico humano confirmado).
             </p>
           </div>
 
@@ -125,8 +167,9 @@ export default function LandingPage() {
                 Denúncias e Relatórios
               </h3>
               <p className="text-unodc-navy-600 text-center leading-relaxed text-xs lg:text-sm">
-                Cidadãos fazem denúncias anônimas e seguras, enquanto organizações 
-                cadastradas registram casos investigativos. Todos os relatos são analisados por especialistas.
+                Cidadãos podem denunciar de forma anônima e segura. Organizações (escolas, hospitais, igrejas, ONGs)
+                também registram ocorrências. As denúncias públicas seguem direto para as autoridades competentes,
+                que passam a conduzir o caso e a atualizar o status oficial.
               </p>
             </div>
 
@@ -139,8 +182,9 @@ export default function LandingPage() {
                 Colaboração Institucional
               </h3>
               <p className="text-unodc-navy-600 text-center leading-relaxed text-xs lg:text-sm">
-                Organizações trabalham em conjunto para investigar casos, compartilhar 
-                informações, coordenar ações e encaminhar às autoridades competentes.
+                As instituições compartilham informações essenciais de forma segura e com acesso controlado.
+                Os casos são encaminhados rapidamente às autoridades, que centralizam a atualização de status
+                (Em investigação, Arquivado, Tráfico humano confirmado) e o histórico de ações.
               </p>
             </div>
 
@@ -153,9 +197,49 @@ export default function LandingPage() {
                 Transparência e Acompanhamento
               </h3>
               <p className="text-unodc-navy-600 text-center leading-relaxed text-xs lg:text-sm">
-                Acompanhe estatísticas, casos resolvidos e progresso das investigações 
-                de forma anonimizada, promovendo transparência e confiança.
+                Relatórios públicos com dados anonimizados por província, distrito, tipo de instituição e tipo de tráfico.
+                Acompanhe indicadores, casos confirmados e estatísticas atualizadas sem expor vítimas ou investigações em curso.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Data + IA Section */}
+      <section className="py-12 lg:py-20 bg-gradient-to-br from-white to-unodc-blue-50/50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 sm:p-10">
+            <h3 className="text-xl lg:text-2xl font-bold text-unodc-navy-900 mb-4 lg:mb-6">
+              Dados e IA para Prevenir o Tráfico Humano
+            </h3>
+            <div className="space-y-4 text-unodc-navy-700 text-sm lg:text-base leading-relaxed">
+              <p>
+                Se com dados é possível prever onde vai chover, também é possível identificar
+                <span className="font-semibold"> onde e quando pode ocorrer tráfico humano</span>.
+              </p>
+              <p>
+                Mas mesmo com a melhor tecnologia ou o modelo mais avançado,
+                <span className="font-semibold"> sem dados confiáveis, não há soluções confiáveis</span>.
+              </p>
+              <p>
+                Por isso, unimos o poder da <span className="font-semibold">centralização de dados</span> com a
+                <span className="font-semibold"> inteligência artificial</span>, criando uma base sólida para
+                <span className="font-semibold"> prever, prevenir e proteger vidas</span>.
+              </p>
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="rounded-xl border border-unodc-blue-100 bg-unodc-blue-50/40 p-4">
+                  <p className="text-xs text-unodc-blue-700 font-semibold">Centralização</p>
+                  <p className="text-sm text-unodc-navy-800">Denúncias públicas e institucionais em um só lugar</p>
+                </div>
+                <div className="rounded-xl border border-unodc-navy-100 bg-unodc-navy-50/40 p-4">
+                  <p className="text-xs text-unodc-navy-700 font-semibold">Inteligência</p>
+                  <p className="text-sm text-unodc-navy-800">Análises por província, distrito e padrões de risco</p>
+                </div>
+                <div className="rounded-xl border border-unodc-green-100 bg-unodc-green-50/40 p-4">
+                  <p className="text-xs text-unodc-green-700 font-semibold">Proteção</p>
+                  <p className="text-sm text-unodc-navy-800">Apoio às autoridades para resposta mais rápida</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -210,7 +294,7 @@ export default function LandingPage() {
               <div className="w-8 h-8 bg-unodc-blue-500 rounded-lg flex items-center justify-center mr-3">
                 <Shield className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold">HUMAI</span>
+              <span className="text-lg font-bold">SafePath</span>
             </div>
             
             <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
@@ -223,11 +307,27 @@ export default function LandingPage() {
               <Link to="/login" className="text-gray-300 hover:text-white transition-colors">
                 Acesso Institucional
               </Link>
+              <a
+                href="https://github.com/DaltonChivambo/Coders406"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                Código-fonte
+              </a>
+              <a
+                href="https://github.com/DaltonChivambo/Coders406"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                Documentação
+              </a>
             </div>
           </div>
           
           <div className="border-t border-gray-700 mt-4 pt-4 text-center text-gray-400 text-xs">
-            <p>&copy; 2024 HUMAI - Sistema de Monitoramento de Tráfico Humano</p>
+            <p>&copy; 2024 SafePath</p>
           </div>
         </div>
       </footer>

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 
 // Configuração base da API
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -16,7 +16,7 @@ const api: AxiosInstance = axios.create({
 // Interceptor para adicionar token de autenticação
 api.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token;
+    const token = useAuth.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -40,26 +40,12 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = useAuthStore.getState().refreshToken;
-        if (refreshToken) {
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refreshToken,
-          });
-
-          const { token } = response.data.data;
-          useAuthStore.getState().login({
-            ...useAuthStore.getState(),
-            token,
-            refreshToken: response.data.data.refreshToken,
-          });
-
-          // Repetir a requisição original com o novo token
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
-        }
+        // Por enquanto, apenas fazer logout se houver erro 401
+        useAuth.getState().logout();
+        window.location.href = '/login';
       } catch (refreshError) {
         // Se o refresh falhar, fazer logout
-        useAuthStore.getState().logout();
+        useAuth.getState().logout();
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

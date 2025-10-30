@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Denuncia, Historico } from '../models';
+import { Denuncia, Historico, Usuario } from '../models';
 import { createError, createNotFoundError } from '../middleware/errorHandler';
 import { IAuthRequest, IDenunciaFilters, IPaginatedResponse, TipoObservacao, TipoEvidencia, StatusDenuncia } from '../types';
 import { uploadMultiple } from '../middleware/upload';
@@ -12,6 +12,7 @@ export const createDenuncia = async (req: IAuthRequest, res: Response): Promise<
     
     // Adicionar campos obrigatórios
     denunciaData.nivelRisco = 'MEDIO'; // Valor padrão, será calculado pela IA futuramente
+    denunciaData.status = 'AGUARDANDO_TRIAGEM'; // Status inicial para todas as denúncias
     
     // Para denúncias públicas, usar dados padrão
     if (req.user) {
@@ -19,6 +20,19 @@ export const createDenuncia = async (req: IAuthRequest, res: Response): Promise<
       denunciaData.usuarioCriadorId = new Types.ObjectId(req.user.id);
       denunciaData.instituicaoOrigemId = new Types.ObjectId(req.user.instituicaoId);
       denunciaData.instituicoesComAcesso = [new Types.ObjectId(req.user.instituicaoId)];
+      
+      // Buscar instituição para verificar o tipo
+      const { Instituicao } = await import('../models');
+      const instituicaoOrigem = await Instituicao.findById(req.user.instituicaoId);
+      
+      // Se for uma escola, submeter automaticamente para a PGR
+      if (instituicaoOrigem?.tipo === 'ESCOLA') {
+        const pgr = await Instituicao.findOne({ tipo: 'AUTORIDADE' });
+        if (pgr) {
+          denunciaData.status = 'SUBMETIDO_AUTORIDADE';
+          denunciaData.instituicoesComAcesso.push(pgr._id);
+        }
+      }
     } else {
       // Denúncia pública - buscar instituição coordenadora
       const { Instituicao } = await import('../models');
@@ -98,10 +112,19 @@ export const getAllDenuncias = async (req: IAuthRequest, res: Response): Promise
     const instituicaoId = req.user!.instituicaoId;
 
     // Filtros baseados no perfil
-    if (perfil === 'COORDENADOR_ASSOCIACAO') {
-      // Coordenador vê todas as denúncias
+    if (perfil === 'GESTOR_SISTEMA') {
+      // HUMAI vê todas as denúncias
+    } else if (perfil === 'AUTORIDADE') {
+      // PGR vê apenas denúncias submetidas
+      filter.status = { $in: [
+        'SUBMETIDO_AUTORIDADE',
+        'EM_INVESTIGACAO',
+        'ENCAMINHADO_JUSTICA',
+        'TRAFICO_HUMANO_CONFIRMADO',
+        'ARQUIVADO'
+      ]};
     } else {
-      // Outros perfis veem apenas denúncias da sua instituição ou com acesso
+      // OPERADOR e ANALISTA veem apenas da sua instituição
       filter.$or = [
         { instituicaoOrigemId: instituicaoId },
         { instituicoesComAcesso: instituicaoId }
@@ -199,7 +222,6 @@ export const getDenunciaById = async (req: IAuthRequest, res: Response): Promise
       .populate('instituicaoOrigemId', 'nome sigla tipo')
       .populate('analistaResponsavelId', 'nome email')
       .populate('instituicaoDestinoId', 'nome sigla tipo')
-      .populate('investidorResponsavelId', 'nome email')
       .populate('equipaInvestigacao', 'nome email')
       .populate('instituicoesComAcesso', 'nome sigla');
 
@@ -567,30 +589,30 @@ export const getStatusPublicoDenuncia = async (req: Request, res: Response): Pro
       },
       {
         nome: 'Análise Inicial',
-        status: ['SUSPEITA', 'PROVAVEL', 'EM_INVESTIGACAO_INTERNA', 'SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === StatusDenuncia.INCOMPLETA ? 'em_andamento' : 'pendente',
-        data: denuncia.status === StatusDenuncia.INCOMPLETA ? denuncia.dataUltimaAtualizacao : undefined,
+        status: ['EM_ANALISE', 'SUBMETIDO_AUTORIDADE', 'EM_INVESTIGACAO', 'ENCAMINHADO_JUSTICA', 'CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? 'concluida' : 
+               denuncia.status === StatusDenuncia.AGUARDANDO_TRIAGEM ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.AGUARDANDO_TRIAGEM ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
         nome: 'Investigação',
-        status: ['EM_INVESTIGACAO_INTERNA', 'SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === StatusDenuncia.PROVAVEL ? 'em_andamento' : 'pendente',
-        data: denuncia.status === StatusDenuncia.PROVAVEL ? denuncia.dataUltimaAtualizacao : undefined,
+        status: ['EM_INVESTIGACAO', 'ENCAMINHADO_JUSTICA', 'CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? 'concluida' : 
+               denuncia.status === StatusDenuncia.EM_ANALISE ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.EM_ANALISE ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
         nome: 'Coordenação Interinstitucional',
-        status: ['SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS', 'ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               denuncia.status === StatusDenuncia.EM_INVESTIGACAO_INTERNA ? 'em_andamento' : 'pendente',
-        data: denuncia.status === StatusDenuncia.EM_INVESTIGACAO_INTERNA ? denuncia.dataUltimaAtualizacao : undefined,
+        status: ['ENCAMINHADO_JUSTICA', 'CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? 'concluida' : 
+               denuncia.status === StatusDenuncia.EM_INVESTIGACAO ? 'em_andamento' : 'pendente',
+        data: denuncia.status === StatusDenuncia.EM_INVESTIGACAO ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       },
       {
         nome: 'Conclusão',
-        status: ['ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? 'concluida' : 
-               ['SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS'].includes(denuncia.status) ? 'em_andamento' : 'pendente',
-        data: ['ENCERRADO_AUTORIDADE', 'ENCERRADA_SEM_PROCEDENCIA', 'DESCARTADA'].includes(denuncia.status) ? denuncia.dataUltimaAtualizacao : undefined,
+        status: ['CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? 'concluida' : 
+               ['ENCAMINHADO_JUSTICA'].includes(denuncia.status) ? 'em_andamento' : 'pendente',
+        data: ['CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status) ? denuncia.dataUltimaAtualizacao : undefined,
         responsavel: (denuncia.instituicaoOrigemId as any)?.nome
       }
     ];
@@ -620,6 +642,207 @@ export const getStatusPublicoDenuncia = async (req: Request, res: Response): Pro
     });
   } catch (error) {
     console.error('Erro ao buscar status da denúncia:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+};
+
+// Estatísticas de denúncias por mês
+export const getEstatisticasMensais = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { ano = new Date().getFullYear() } = req.query;
+    const userInstituicaoId = (req as any).user?.instituicaoId;
+    
+    // Construir filtro baseado na instituição do usuário
+    const matchFilter: any = {
+      dataRegistro: {
+        $gte: new Date(`${ano}-01-01`),
+        $lt: new Date(`${parseInt(ano as string) + 1}-01-01`)
+      },
+      instituicoesComAcesso: { $in: [new Types.ObjectId(userInstituicaoId)] }
+    };
+    
+    // Pipeline de agregação para estatísticas mensais
+    const pipeline = [
+      {
+        $match: matchFilter
+      },
+      {
+        $group: {
+          _id: {
+            mes: { $month: '$dataRegistro' },
+            status: '$status'
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.mes',
+          statuses: {
+            $push: {
+              status: '$_id.status',
+              count: '$count'
+            }
+          }
+        }
+      },
+      {
+        $sort: { _id: 1 as 1 }
+      }
+    ];
+
+    const resultados = await Denuncia.aggregate(pipeline);
+    
+    // Preparar dados para os gráficos
+    const meses = [
+      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+    ];
+
+    const dadosPendentes = meses.map((mes, index) => {
+      const mesData = resultados.find(r => r._id === index + 1);
+      const pendentes = mesData?.statuses.find((s: any) => 
+        ['AGUARDANDO_TRIAGEM', 'EM_ANALISE', 'AGUARDANDO_INFORMACOES'].includes(s.status)
+      )?.count || 0;
+      
+      return { mes, casos: pendentes };
+    });
+
+    const dadosSubmetidos = meses.map((mes, index) => {
+      const mesData = resultados.find(r => r._id === index + 1);
+      const submetidos = mesData?.statuses.find((s: any) => 
+        s.status === 'SUBMETIDO_AUTORIDADE'
+      )?.count || 0;
+      
+      return { mes, casos: submetidos };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        casosPendentes: dadosPendentes,
+        casosSubmetidos: dadosSubmetidos,
+        ano: parseInt(ano as string)
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas mensais:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+};
+
+// Adicionar observação à denúncia
+export const adicionarObservacao = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { tipo, conteudo, visibilidade } = req.body;
+
+    if (!tipo || !conteudo || !visibilidade) {
+      res.status(400).json({
+        success: false,
+        message: 'Tipo, conteúdo e visibilidade são obrigatórios'
+      });
+      return;
+    }
+
+    const denuncia = await Denuncia.findById(id);
+    if (!denuncia) {
+      res.status(404).json({
+        success: false,
+        message: 'Denúncia não encontrada'
+      });
+      return;
+    }
+
+    // Adicionar observação ao array de observações internas
+    denuncia.observacoesInternas.push({
+      usuarioId: new Types.ObjectId(req.user!.id),
+      texto: conteudo,
+      data: new Date(),
+      tipo: TipoObservacao.NOTA
+    });
+
+    await denuncia.save();
+
+    res.json({
+      success: true,
+      message: 'Observação adicionada com sucesso',
+      data: denuncia.observacoesInternas[denuncia.observacoesInternas.length - 1]
+    });
+  } catch (error) {
+    console.error('Erro ao adicionar observação:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+};
+
+// Criar denúncia pública (sem autenticação)
+export const createDenunciaPublica = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const denunciaData = req.body;
+    
+    // Adicionar campos obrigatórios para denúncia pública
+    denunciaData.nivelRisco = 'MEDIO'; // Valor padrão
+    // Enviar diretamente às autoridades para fluxo público
+    denunciaData.status = 'SUBMETIDO_AUTORIDADE';
+    denunciaData.tipoDenuncia = 'PUBLICA'; // Sempre pública
+    denunciaData.canalDenuncia = 'WEB'; // Sempre web para denúncias públicas
+    
+    // Buscar autoridade (PGR) para envio direto
+    const { Instituicao } = await import('../models');
+    const instituicaoReceptora = await Instituicao.findOne({ tipo: 'AUTORIDADE' });
+    
+    if (!instituicaoReceptora) {
+      res.status(500).json({
+        success: false,
+        message: 'Nenhuma instituição receptora encontrada'
+      });
+      return;
+    }
+    
+    // Configurar dados da denúncia pública (envio direto à autoridade)
+    denunciaData.instituicaoOrigemId = instituicaoReceptora._id;
+    denunciaData.instituicoesComAcesso = [instituicaoReceptora._id];
+    
+    // Gerar código de rastreamento
+    const codigoInstituicao = instituicaoReceptora.sigla || 'PUB';
+    const timestamp = Date.now().toString().slice(-6);
+    const randomCode = Math.random().toString(36).substring(2, 5).toUpperCase();
+    denunciaData.codigoRastreio = `HUMAI-${codigoInstituicao}-${timestamp}-${randomCode}`;
+    
+    // Criar a denúncia
+    const denuncia = new Denuncia(denunciaData);
+    await denuncia.save();
+    
+    // Criar histórico inicial
+    const historico = new Historico({
+      denunciaId: denuncia._id,
+      acao: 'CRIADA',
+      descricao: 'Denúncia pública criada e submetida às autoridades',
+      usuarioId: null, // Sem usuário para denúncias públicas
+      data: new Date()
+    });
+    await historico.save();
+    
+    res.status(201).json({
+      success: true,
+      message: 'Denúncia pública criada com sucesso',
+      data: {
+        id: denuncia._id,
+        codigoRastreio: denuncia.codigoRastreio,
+        status: denuncia.status
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao criar denúncia pública:', error);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor'

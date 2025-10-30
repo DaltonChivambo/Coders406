@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { denunciaService } from '@/services/denunciaService';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { TipoDenuncia, CanalDenuncia, TipoTrafico, Genero, FaixaEtaria, Vulnerabilidade, RelacaoVitima } from '@/types';
 import { ArrowLeft, Plus, Minus, Upload, CheckCircle, Shield, AlertCircle, MapPin, Users, UserCheck, FileText, Loader2, Save, Send } from 'lucide-react';
 
@@ -65,7 +65,7 @@ type NovaDenunciaFormData = z.infer<typeof novaDenunciaSchema>;
 
 export default function NovaDenunciaPage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [codigoRastreio, setCodigoRastreio] = useState<string>('');
@@ -143,6 +143,14 @@ export default function NovaDenunciaPage() {
     return 'DOCUMENTO';
   };
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const onSubmit = async (data: NovaDenunciaFormData) => {
     try {
       setIsSubmitting(true);
@@ -165,7 +173,7 @@ export default function NovaDenunciaPage() {
       };
 
       console.log('Dados da denúncia a serem enviados:', denunciaData);
-      
+
       const response = await denunciaService.createDenuncia(denunciaData);
       setCodigoRastreio(response.codigoRastreio);
       setIsSuccess(true);
@@ -236,30 +244,10 @@ export default function NovaDenunciaPage() {
 
       <div className="relative z-10 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="inline-flex items-center text-unodc-navy-600 hover:text-unodc-navy-800 transition-colors duration-200 group mb-6"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-              <span className="text-sm font-medium">Voltar ao Dashboard</span>
-            </button>
-            
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-unodc-blue-600 to-unodc-navy-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Shield className="w-10 h-10 text-white" />
-              </div>
-            </div>
-            
-            <h1 className="text-3xl font-bold text-unodc-navy-900 mb-4">
-              Nova Denúncia
-            </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Registre uma nova denúncia no sistema. 
-              Todas as informações são confidenciais e seguras.
-            </p>
-          </div>
+          {/* Título */}
+          <h1 className="text-3xl font-bold text-unodc-navy-900 mb-8 text-center">
+            Nova Denúncia
+          </h1>
 
           {/* Form */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
@@ -307,28 +295,28 @@ export default function NovaDenunciaPage() {
             <div className="flex items-center mb-4">
               <FileText className="h-5 w-5 text-unodc-blue-600 mr-2" />
               <h3 className="text-lg font-semibold text-gray-900">Canal de Denúncia</h3>
-            </div>
+      </div>
             
             <div className="max-w-md">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Canal *
-              </label>
-              <select
-                {...register('canalDenuncia')}
+                  Canal *
+                </label>
+                <select
+                  {...register('canalDenuncia')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-              >
-                <option value={CanalDenuncia.WEB}>Web</option>
-                <option value={CanalDenuncia.APP}>App</option>
-                <option value={CanalDenuncia.TELEFONE}>Telefone</option>
-                <option value={CanalDenuncia.WHATSAPP}>WhatsApp</option>
-                <option value={CanalDenuncia.PRESENCIAL}>Presencial</option>
-              </select>
-              {errors.canalDenuncia && (
+                >
+                  <option value={CanalDenuncia.WEB}>Web</option>
+                  <option value={CanalDenuncia.APP}>App</option>
+                  <option value={CanalDenuncia.TELEFONE}>Telefone</option>
+                  <option value={CanalDenuncia.WHATSAPP}>WhatsApp</option>
+                  <option value={CanalDenuncia.PRESENCIAL}>Presencial</option>
+                </select>
+                {errors.canalDenuncia && (
                 <p className="mt-2 text-sm text-red-600 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1" />
                   {errors.canalDenuncia.message}
                 </p>
-              )}
+                )}
             </div>
           </div>
 
@@ -338,7 +326,7 @@ export default function NovaDenunciaPage() {
             <div className="flex items-center mb-4">
               <AlertCircle className="h-5 w-5 text-unodc-blue-600 mr-2" />
               <label className="text-lg font-semibold text-gray-900">
-                Tipo de Tráfico Suspeito *
+              Tipo de Tráfico Suspeito *
               </label>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -456,37 +444,562 @@ export default function NovaDenunciaPage() {
               <h3 className="text-lg font-semibold text-gray-900">Descrição da Denúncia</h3>
             </div>
             
-            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Descrição Detalhada *
                 </label>
                 <textarea
                   {...register('descricao')}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="Descreva detalhadamente o que aconteceu, incluindo data, hora, pessoas envolvidas, etc."
                 />
                 {errors.descricao && (
-                  <p className="mt-2 text-sm text-red-600 flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.descricao.message}
-                  </p>
-                )}
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  {errors.descricao.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Evidências */}
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <Upload className="h-5 w-5 text-unodc-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Evidências (Opcional)</h3>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Anexar Arquivos
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-unodc-blue-400 transition-colors duration-200">
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="evidencias-upload"
+                  accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
+                />
+                <label
+                  htmlFor="evidencias-upload"
+                  className="cursor-pointer flex flex-col items-center"
+                >
+                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-600 mb-1">
+                    Clique para selecionar arquivos ou arraste aqui
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    Imagens, vídeos, áudios, documentos (máx. 10MB cada)
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Lista de arquivos selecionados */}
+            {evidencias.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-700">Arquivos Selecionados:</h4>
+                {evidencias.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center flex-1">
+                      <div className="w-8 h-8 bg-unodc-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        {getFileType(file) === 'IMAGEM' && <FileText className="h-4 w-4 text-unodc-blue-600" />}
+                        {getFileType(file) === 'VIDEO' && <FileText className="h-4 w-4 text-unodc-blue-600" />}
+                        {getFileType(file) === 'AUDIO' && <FileText className="h-4 w-4 text-unodc-blue-600" />}
+                        {getFileType(file) === 'DOCUMENTO' && <FileText className="h-4 w-4 text-unodc-blue-600" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatFileSize(file.size)} • {getFileType(file)}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeEvidencia(index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors duration-200"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-gray-500 mt-3">
+              As evidências ajudam na investigação do caso. Você pode anexar fotos, vídeos, 
+              áudios ou documentos relacionados ao incidente.
+            </p>
+          </div>
+
+          {/* Abordagem Online */}
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <AlertCircle className="h-5 w-5 text-unodc-blue-600 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900">Abordagem Online (Opcional)</h3>
+              </div>
+              
+              <button
+                type="button"
+                onClick={() => setAbordagemOnlineAtiva(!abordagemOnlineAtiva)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-unodc-blue-500 focus:ring-offset-2 ${
+                  abordagemOnlineAtiva ? 'bg-unodc-blue-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                    abordagemOnlineAtiva ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              {abordagemOnlineAtiva 
+                ? 'A abordagem aconteceu através da internet ou redes sociais. Preencha os campos abaixo com as informações disponíveis.'
+                : 'Marque se a abordagem aconteceu através da internet, redes sociais, aplicativos de mensagem ou outros meios online.'
+              }
+            </p>
+
+            {abordagemOnlineAtiva && (
+              <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Plataforma/App Utilizada
+                  </label>
+                  <select
+                    {...register('comoFoiAbordada.canal')}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                  >
+                    <option value="">Selecione a plataforma</option>
+                    <option value="REDES_SOCIAIS">Redes Sociais (Facebook, Instagram, etc.)</option>
+                    <option value="WHATSAPP">WhatsApp</option>
+                    <option value="TELEGRAM">Telegram</option>
+                    <option value="INTERNET">Site/Blog/Fórum</option>
+                    <option value="OUTROS">Outros aplicativos</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Nome da Plataforma
+                    </label>
+                    <input
+                      {...register('comoFoiAbordada.plataforma')}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="Ex: Facebook, Instagram, Telegram, etc."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Perfil/Usuário Suspeito
+                    </label>
+                    <input
+                      {...register('comoFoiAbordada.perfilSuspeito')}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="Ex: @usuario123, nome do perfil"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Link do Perfil Suspeito
+                    </label>
+                    <input
+                      {...register('comoFoiAbordada.linkPerfil')}
+                      type="url"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="https://facebook.com/perfil-suspeito"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Link do Anúncio/Post Suspeito
+                    </label>
+                    <input
+                      {...register('comoFoiAbordada.linkAnuncio')}
+                      type="url"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="https://facebook.com/posts/anuncio-suspeito"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Link da Conversa/Mensagem
+                    </label>
+                    <input
+                      {...register('comoFoiAbordada.linkConversa')}
+                      type="url"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="https://whatsapp.com/chat/conversa"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Detalhes da Abordagem Online
+                  </label>
+                  <textarea
+                    {...register('comoFoiAbordada.detalhesAbordagem')}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white resize-none"
+                    placeholder="Descreva como aconteceu a abordagem online, o que foi dito, promessas feitas, como iniciou o contato, etc."
+                  />
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <AlertCircle className="h-5 w-5 text-blue-400" />
+                    </div>
+                    <div className="ml-3">
+                      <h4 className="text-sm font-medium text-blue-800">Importante</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Estas informações são cruciais para rastrear e investigar casos de tráfico humano online. 
+                        Salve prints, links e evidências antes de reportar.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Contatos e Informações de Contato */}
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <Users className="h-5 w-5 text-unodc-blue-600 mr-2" />
+              <h3 className="text-lg font-semibold text-gray-900">Informações de Contato (Opcional)</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Telefone do Suspeito
+                </label>
+                <input
+                  {...register('contatos.telefoneSuspeito')}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  placeholder="+258 84 123 4567"
+                />
               </div>
               
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Contexto Adicional
+                  Telefone da Vítima
+                </label>
+                <input
+                  {...register('contatos.telefoneVitima')}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  placeholder="+258 84 987 6543"
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Outros Contatos/Informações
                 </label>
                 <textarea
-                  {...register('contextoAdicional')}
+                  {...register('contatos.outrosContatos')}
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder="Informações adicionais que possam ser relevantes..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white resize-none"
+                  placeholder="Outros números de telefone, emails, endereços, informações adicionais de contato..."
                 />
               </div>
             </div>
+
+            <p className="text-xs text-gray-500 mt-3">
+              Informações de contato ajudam na investigação e podem ser cruciais para localizar vítimas e suspeitos.
+            </p>
+          </div>
+
+          {/* Vítimas */}
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <Users className="h-5 w-5 text-unodc-blue-600 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900">Vítimas</h3>
+              </div>
+              <button
+                type="button"
+                onClick={addVitima}
+                className="inline-flex items-center px-4 py-2 border border-unodc-blue-300 text-unodc-blue-700 bg-white hover:bg-unodc-blue-50 rounded-lg transition-all duration-200 text-sm font-medium"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Adicionar Vítima
+              </button>
+            </div>
+            {vitimas.map((_, index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-semibold text-gray-900 flex items-center">
+                    <span className="w-6 h-6 bg-unodc-blue-100 text-unodc-blue-600 rounded-full flex items-center justify-center text-sm font-bold mr-2">
+                      {index + 1}
+                    </span>
+                    Vítima {index + 1}
+                  </h4>
+                  {vitimas.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeVitima(index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors duration-200"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Gênero
+                    </label>
+                    <select
+                      {...register(`vitimas.${index}.genero`)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                    >
+                      <option value="NAO_INFORMADO">Não Informado</option>
+                      <option value="MASCULINO">Masculino</option>
+                      <option value="FEMININO">Feminino</option>
+                      <option value="OUTRO">Outro</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Faixa Etária
+                    </label>
+                    <select
+                      {...register(`vitimas.${index}.faixaEtaria`)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                    >
+                      <option value="ADULTO">Adulto</option>
+                      <option value="CRIANCA">Criança</option>
+                      <option value="ADOLESCENTE">Adolescente</option>
+                      <option value="IDOSO">Idoso</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Nacionalidade
+                    </label>
+                    <input
+                      {...register(`vitimas.${index}.nacionalidade`)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                      placeholder="Ex: Moçambicana"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Suspeitos */}
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <UserCheck className="h-5 w-5 text-unodc-blue-600 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900">Suspeitos</h3>
+              </div>
+              <button
+                type="button"
+                onClick={addSuspeito}
+                className="inline-flex items-center px-4 py-2 border border-unodc-blue-300 text-unodc-blue-700 bg-white hover:bg-unodc-blue-50 rounded-lg transition-all duration-200 text-sm font-medium"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Adicionar Suspeito
+              </button>
+            </div>
+            {suspeitos.map((_, index) => (
+              <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-semibold text-gray-900 flex items-center">
+                    <span className="w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold mr-2">
+                      {index + 1}
+                    </span>
+                    Suspeito {index + 1}
+                  </h4>
+                  {suspeitos.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeSuspeito(index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors duration-200"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Sexo
+                    </label>
+                    <input
+                      {...register(`suspeitos.${index}.sexo`)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                      placeholder="Ex: Masculino"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Relação com a Vítima
+                    </label>
+                    <select
+                      {...register(`suspeitos.${index}.relacaoVitima`)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                    >
+                      <option value="DESCONHECIDO">Desconhecido</option>
+                      <option value="FAMILIAR">Familiar</option>
+                      <option value="VIZINHO">Vizinho</option>
+                      <option value="RECRUTADOR">Recrutador</option>
+                      <option value="EMPREGADOR">Empregador</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Descrição Física
+                    </label>
+                    <input
+                      {...register(`suspeitos.${index}.descricaoFisica`)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                      placeholder="Ex: Homem de meia-idade, altura média"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Denunciante */}
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <Shield className="h-5 w-5 text-unodc-blue-600 mr-2" />
+                <h3 className="text-lg font-semibold text-gray-900">Dados do Denunciante (Opcional)</h3>
+              </div>
+              
+              <button
+                type="button"
+                onClick={() => setDenunciaAnonima(!denunciaAnonima)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-unodc-blue-500 focus:ring-offset-2 ${
+                  denunciaAnonima ? 'bg-red-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                    denunciaAnonima ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              {denunciaAnonima 
+                ? 'A denúncia será registrada de forma anônima. Nenhum dado pessoal será coletado.'
+                : 'Forneça os dados do denunciante para que possamos entrar em contato se necessário. Você pode manter a denúncia anônima se preferir.'
+              }
+            </p>
+
+            {!denunciaAnonima && (
+              <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Nome Completo
+                    </label>
+                    <input
+                      {...register('denunciante.nome')}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="Nome completo do denunciante"
+                    />
+                    {errors.denunciante?.nome && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        {errors.denunciante.nome.message}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Telefone
+                    </label>
+                    <input
+                      {...register('denunciante.telefone')}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="+258 84 123 4567"
+                    />
+                    {errors.denunciante?.telefone && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        {errors.denunciante.telefone.message}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Localização
+                    </label>
+                    <input
+                      {...register('denunciante.localizacao')}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-unodc-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                      placeholder="Ex: Maputo, Moçambique"
+                    />
+                    {errors.denunciante?.localizacao && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        {errors.denunciante.localizacao.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <Shield className="h-5 w-5 text-blue-400" />
+                    </div>
+                    <div className="ml-3">
+                      <h4 className="text-sm font-medium text-blue-800">Privacidade Garantida</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Os dados pessoais são protegidos e usados apenas para contato sobre a denúncia. 
+                        Você pode optar por manter a denúncia anônima a qualquer momento.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {denunciaAnonima && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <Shield className="h-5 w-5 text-red-400" />
+                  </div>
+                  <div className="ml-3">
+                    <h4 className="text-sm font-medium text-red-800">Denúncia Anônima</h4>
+                    <p className="text-sm text-red-700 mt-1">
+                      A denúncia será processada de forma completamente anônima. 
+                      Nenhum dado pessoal será coletado ou armazenado.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Observações Internas */}
@@ -537,7 +1050,7 @@ export default function NovaDenunciaPage() {
               )}
             </button>
           </div>
-            </form>
+        </form>
           </div>
         </div>
       </div>

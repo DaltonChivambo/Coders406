@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/hooks/useAuth';
 import { useEffect } from 'react';
 
 // Páginas
@@ -9,10 +9,14 @@ import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
 import DenunciaPublicaPage from '@/pages/DenunciaPublicaPage';
 import RepositorioPage from '@/pages/RepositorioPage';
+import RelatoriosPublicosPage from '@/pages/RelatoriosPublicosPage';
 import RastreioInternoPage from '@/pages/RastreioInternoPage';
-import VerificarOportunidadePage from '@/pages/VerificarOportunidadePage';
 import VerificarStatusPage from '@/pages/VerificarStatusPage';
 import NovaDenunciaPage from '@/pages/NovaDenunciaPage';
+import AnalisePendentePage from '@/pages/AnalisePendentePage';
+import DetalheDenunciaPage from '@/pages/DetalheDenunciaPage';
+import MeusCasosPage from '@/pages/MeusCasosPage';
+import SubmeterCasosPage from '@/pages/SubmeterCasosPage';
 
 // Componentes
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -29,7 +33,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuth();
 
   // Verificar se há token válido no localStorage
   useEffect(() => {
@@ -57,9 +61,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/denuncia-publica" element={<DenunciaPublicaPage />} />
-            <Route path="/verificar-oportunidade" element={<VerificarOportunidadePage />} />
             <Route path="/verificar-status" element={<VerificarStatusPage />} />
-            <Route path="/relatorios-publicos" element={<RepositorioPage />} />
+            <Route path="/relatorios-publicos" element={<RelatoriosPublicosPage />} />
 
             {/* Rotas protegidas */}
             <Route
@@ -97,6 +100,48 @@ function App() {
               element={
                 <ProtectedRoute>
                   <NovaDenunciaPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas para Analistas */}
+            <Route
+              path="/dashboard/analise/pendentes"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AnalisePendentePage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/denuncias/:id"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <DetalheDenunciaPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/analise/minhas"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <MeusCasosPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/analise/submeter"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <SubmeterCasosPage />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
