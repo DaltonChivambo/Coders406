@@ -11,6 +11,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -24,10 +25,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           {/* Left side */}
           <div className="flex items-center">
             <button
-              onClick={onMenuClick}
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
               className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
             >
-              <Menu className="h-6 w-6" />
+              {showMobileMenu ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
             
             <div className="flex-shrink-0 flex items-center ml-4 lg:ml-0">
@@ -36,7 +37,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                   <span className="text-white font-bold text-sm lg:text-base">H</span>
                 </div>
                 <span className="ml-2 text-lg lg:text-xl font-bold text-unodc-navy-900">
-                  HUMAI
+                  SafePath
                 </span>
               </div>
             </div>
@@ -180,13 +181,15 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                   Fazer Denúncia
                 </Link>
                 
-                <Link
-                  to="/verificar-oportunidade"
+                <a
+                  href="http://145.241.188.248/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hidden sm:flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-unodc-blue-600 hover:bg-gray-100 rounded-md transition-colors"
                 >
                   <Search className="h-4 w-4 mr-2" />
                   Verificar Oportunidade
-                </Link>
+                </a>
                 
                 <Link
                   to="/relatorios-publicos"
@@ -209,6 +212,62 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           </div>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {showMobileMenu && !user && (
+        <div className="lg:hidden border-t border-gray-200 bg-white">
+          <div className="px-4 py-2 space-y-1">
+            <Link
+              to="/"
+              onClick={() => setShowMobileMenu(false)}
+              className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-unodc-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <Home className="h-4 w-4 mr-2" />
+              Início
+            </Link>
+            
+            <Link
+              to="/denuncia-publica"
+              onClick={() => setShowMobileMenu(false)}
+              className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-unodc-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Fazer Denúncia
+            </Link>
+            
+            <a
+              href="http://145.241.188.248/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setShowMobileMenu(false)}
+              className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-unodc-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Verificar Oportunidade
+            </a>
+            
+            <Link
+              to="/relatorios-publicos"
+              onClick={() => setShowMobileMenu(false)}
+              className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-unodc-blue-600 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Relatórios Públicos
+            </Link>
+
+            <div className="pt-2">
+              <Link
+                to="/login"
+                onClick={() => setShowMobileMenu(false)}
+                className="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-unodc-blue-500 hover:bg-unodc-blue-600 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Entrar
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

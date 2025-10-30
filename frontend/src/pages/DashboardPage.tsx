@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
-import { PerfilUsuario } from '@/types';
+import { PerfilUsuario, StatusDenuncia } from '@/types';
 import { Link } from 'react-router-dom';
 import { useDenuncias, useDenunciaStats } from '@/hooks/useDenuncias';
 import { 
@@ -121,11 +121,10 @@ export default function DashboardPage() {
                               {denuncia.codigoRastreio}
                             </span>
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              denuncia.status === 'AGUARDANDO_TRIAGEM' ? 'bg-yellow-100 text-yellow-800' :
-                              denuncia.status === 'EM_ANALISE' ? 'bg-blue-100 text-blue-800' :
-                              denuncia.status === 'SUBMETIDO_AUTORIDADE' ? 'bg-purple-100 text-purple-800' :
-                              denuncia.status === 'EM_INVESTIGACAO' ? 'bg-orange-100 text-orange-800' :
-                              denuncia.status === 'CASO_ENCERRADO' ? 'bg-green-100 text-green-800' :
+                              denuncia.status === StatusDenuncia.AGUARDANDO_TRIAGEM ? 'bg-yellow-100 text-yellow-800' :
+                              denuncia.status === StatusDenuncia.SUBMETIDO_AUTORIDADE ? 'bg-purple-100 text-purple-800' :
+                              denuncia.status === StatusDenuncia.EM_INVESTIGACAO ? 'bg-orange-100 text-orange-800' :
+                              denuncia.status === StatusDenuncia.TRAFICO_HUMANO_CONFIRMADO ? 'bg-green-100 text-green-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
                               {denuncia.status.replace('_', ' ')}
@@ -173,7 +172,7 @@ export default function DashboardPage() {
                       <p className="text-sm font-medium text-gray-600">Pendentes de Análise</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
-                         recentDenuncias.filter(d => d.status === 'AGUARDANDO_TRIAGEM').length}
+                         recentDenuncias.filter(d => d.status === StatusDenuncia.AGUARDANDO_TRIAGEM).length}
                       </p>
                     </div>
                   </div>
@@ -188,10 +187,10 @@ export default function DashboardPage() {
                       <CheckCircle className="h-6 w-6 text-unodc-green-600" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Submetidos</p>
+                      <p className="text-sm font-medium text-gray-600">Submetidos à Autoridade</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
-                         recentDenuncias.filter(d => d.status === 'SUBMETIDO_AUTORIDADE').length}
+                         recentDenuncias.filter(d => d.status === StatusDenuncia.SUBMETIDO_AUTORIDADE).length}
                       </p>
                     </div>
                   </div>
@@ -216,7 +215,7 @@ export default function DashboardPage() {
                       <p className="text-sm font-medium text-gray-600">Casos Submetidos</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
-                         recentDenuncias.filter(d => d.status === 'SUBMETIDO_AUTORIDADE').length}
+                         recentDenuncias.filter(d => d.status === StatusDenuncia.SUBMETIDO_AUTORIDADE).length}
                       </p>
                     </div>
                   </div>
@@ -233,7 +232,7 @@ export default function DashboardPage() {
                       <p className="text-sm font-medium text-gray-600">Em Investigação</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
-                         recentDenuncias.filter(d => d.status === 'EM_INVESTIGACAO').length}
+                         recentDenuncias.filter(d => d.status === StatusDenuncia.EM_INVESTIGACAO).length}
                       </p>
                     </div>
                   </div>
@@ -250,7 +249,7 @@ export default function DashboardPage() {
                       <p className="text-sm font-medium text-gray-600">Casos Encerrados</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {isLoadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : 
-                         recentDenuncias.filter(d => d.status === 'CASO_ENCERRADO').length}
+                         recentDenuncias.filter(d => d.status === StatusDenuncia.TRAFICO_HUMANO_CONFIRMADO).length}
                       </p>
                     </div>
                   </div>
@@ -297,9 +296,9 @@ export default function DashboardPage() {
                               {denuncia.codigoRastreio}
                             </span>
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              denuncia.status === 'SUBMETIDO_AUTORIDADE' ? 'bg-purple-100 text-purple-800' :
-                              denuncia.status === 'EM_INVESTIGACAO' ? 'bg-orange-100 text-orange-800' :
-                              denuncia.status === 'CASO_ENCERRADO' ? 'bg-green-100 text-green-800' :
+                              denuncia.status === StatusDenuncia.SUBMETIDO_AUTORIDADE ? 'bg-purple-100 text-purple-800' :
+                              denuncia.status === StatusDenuncia.EM_INVESTIGACAO ? 'bg-orange-100 text-orange-800' :
+                              denuncia.status === StatusDenuncia.TRAFICO_HUMANO_CONFIRMADO ? 'bg-green-100 text-green-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
                               {denuncia.status.replace('_', ' ')}
@@ -424,7 +423,7 @@ export default function DashboardPage() {
                               denuncia.status === 'EM_ANALISE' ? 'bg-blue-100 text-blue-800' :
                               denuncia.status === 'SUBMETIDO_AUTORIDADE' ? 'bg-purple-100 text-purple-800' :
                               denuncia.status === 'EM_INVESTIGACAO' ? 'bg-orange-100 text-orange-800' :
-                              denuncia.status === 'CASO_ENCERRADO' ? 'bg-green-100 text-green-800' :
+                              denuncia.status === StatusDenuncia.TRAFICO_HUMANO_CONFIRMADO ? 'bg-green-100 text-green-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
                               {denuncia.status.replace('_', ' ')}

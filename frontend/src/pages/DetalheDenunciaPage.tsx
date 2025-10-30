@@ -21,81 +21,15 @@ import {
 } from 'lucide-react';
 import { denunciaService } from '@/services/denunciaService';
 import { useAuth } from '@/hooks/useAuth';
-import { PerfilUsuario, StatusDenuncia } from '@/types';
+import { PerfilUsuario, StatusDenuncia, Denuncia } from '@/types';
 
-interface DenunciaDetalhes {
-  _id: string;
-  codigoRastreio: string;
-  status: string;
-  tipoDenuncia: string;
-  canalDenuncia: string;
-  nivelRisco: string;
-  prioridade: string;
-  tipoTrafico: string[];
-  localizacao: {
-    provincia: string;
-    distrito: string;
-    bairro?: string;
-    endereco?: string;
-  };
-  descricao: string;
-  observacoesInternas?: string;
-  dataRegistro: string;
-  dataUltimaAtualizacao: string;
-  usuarioCriadorId?: {
-    nome: string;
-    email: string;
-  };
-  instituicaoOrigemId?: {
-    nome: string;
-    sigla: string;
-  };
-  vitimas: Array<{
-    genero: string;
-    faixaEtaria: string;
-    nacionalidade: string;
-    vulnerabilidade: string[];
-    relacaoVitima: string;
-  }>;
-  suspeitos: Array<{
-    nome?: string;
-    genero: string;
-    faixaEtaria: string;
-    nacionalidade: string;
-    relacaoVitima: string;
-    descricao: string;
-  }>;
-  evidencias: Array<{
-    tipo: string;
-    nomeArquivo: string;
-    url: string;
-  }>;
-  denunciante: {
-    anonimo: boolean;
-    nome?: string;
-    telefone?: string;
-    localizacao?: string;
-  };
-  comoFoiAbordada?: {
-    online: boolean;
-    canal?: string;
-    plataforma?: string;
-    perfil?: string;
-    link?: string;
-  };
-  informacoesContato?: {
-    telefone?: string;
-    email?: string;
-    endereco?: string;
-    redeSocial?: string;
-  };
-}
+// Usar o tipo Denuncia do domínio para evitar divergências
 
 export default function DetalheDenunciaPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [denuncia, setDenuncia] = useState<DenunciaDetalhes | null>(null);
+  const [denuncia, setDenuncia] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -226,7 +160,7 @@ export default function DetalheDenunciaPage() {
         return 'bg-blue-100 text-blue-800';
       case 'SUBMETIDO_AUTORIDADE':
         return 'bg-green-100 text-green-800';
-      case 'ENCERRADO_AUTORIDADE':
+      case 'TRAFICO_HUMANO_CONFIRMADO':
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -241,7 +175,7 @@ export default function DetalheDenunciaPage() {
         return <AlertTriangle className="w-4 h-4" />;
       case 'SUBMETIDO_AUTORIDADE':
         return <Shield className="w-4 h-4" />;
-      case 'ENCERRADO_AUTORIDADE':
+      case 'TRAFICO_HUMANO_CONFIRMADO':
         return <CheckCircle className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
@@ -348,7 +282,7 @@ export default function DetalheDenunciaPage() {
             <div className="mt-4">
               <label className="text-sm font-medium text-gray-500">Tipos de Tráfico</label>
               <div className="flex flex-wrap gap-2 mt-1">
-                {denuncia.tipoTrafico.map((tipo, index) => (
+                {denuncia.tipoTrafico.map((tipo: any, index: number) => (
                   <span
                     key={index}
                     className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-unodc-blue-100 text-unodc-blue-800"
@@ -382,10 +316,10 @@ export default function DetalheDenunciaPage() {
                   <p className="text-sm text-gray-900">{denuncia.localizacao.bairro}</p>
                 </div>
               )}
-              {denuncia.localizacao.endereco && (
+              {(denuncia.localizacao as any).endereco && (
                 <div>
                   <label className="text-sm font-medium text-gray-500">Endereço</label>
-                  <p className="text-sm text-gray-900">{denuncia.localizacao.endereco}</p>
+                  <p className="text-sm text-gray-900">{(denuncia.localizacao as any).endereco}</p>
                 </div>
               )}
             </div>
@@ -404,9 +338,21 @@ export default function DetalheDenunciaPage() {
             {denuncia.observacoesInternas && (
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <h3 className="text-sm font-medium text-gray-900 mb-2">Observações Internas</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {denuncia.observacoesInternas}
-                </p>
+                {Array.isArray(denuncia.observacoesInternas) ? (
+                  <div className="space-y-2">
+                    {denuncia.observacoesInternas.map((obs: any, index: number) => (
+                      <div key={index} className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-gray-700">{obs.tipo}</span>
+                          <span className="text-xs text-gray-500">{new Date(obs.data).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                        <p>{obs.texto}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-700 leading-relaxed">{denuncia.observacoesInternas}</p>
+                )}
               </div>
             )}
           </div>
@@ -420,7 +366,7 @@ export default function DetalheDenunciaPage() {
               </h2>
               
               <div className="space-y-4">
-                {denuncia.vitimas.map((vitima, index) => (
+                {denuncia.vitimas.map((vitima: any, index: number) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -437,14 +383,14 @@ export default function DetalheDenunciaPage() {
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-500">Relação com a Vítima</label>
-                        <p className="text-sm text-gray-900">{vitima.relacaoVitima}</p>
+                        <p className="text-sm text-gray-900">{(vitima as any).relacaoVitima || '-'}</p>
                       </div>
                     </div>
                     {vitima.vulnerabilidade && vitima.vulnerabilidade.length > 0 && (
                       <div className="mt-3">
                         <label className="text-sm font-medium text-gray-500">Vulnerabilidades</label>
                         <div className="flex flex-wrap gap-2 mt-1">
-                          {vitima.vulnerabilidade.map((vuln, vulnIndex) => (
+                          {vitima.vulnerabilidade.map((vuln: any, vulnIndex: number) => (
                             <span
                               key={vulnIndex}
                               className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
@@ -470,36 +416,36 @@ export default function DetalheDenunciaPage() {
               </h2>
               
               <div className="space-y-4">
-                {denuncia.suspeitos.map((suspeito, index) => (
+                {denuncia.suspeitos.map((suspeito: any, index: number) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {suspeito.nome && (
+                      {(suspeito as any).nome && (
                         <div>
                           <label className="text-sm font-medium text-gray-500">Nome</label>
-                          <p className="text-sm text-gray-900">{suspeito.nome}</p>
+                          <p className="text-sm text-gray-900">{(suspeito as any).nome}</p>
                         </div>
                       )}
                       <div>
                         <label className="text-sm font-medium text-gray-500">Gênero</label>
-                        <p className="text-sm text-gray-900">{suspeito.genero}</p>
+                        <p className="text-sm text-gray-900">{(suspeito as any).genero}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-500">Faixa Etária</label>
-                        <p className="text-sm text-gray-900">{suspeito.faixaEtaria}</p>
+                        <p className="text-sm text-gray-900">{(suspeito as any).faixaEtaria}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-500">Nacionalidade</label>
-                        <p className="text-sm text-gray-900">{suspeito.nacionalidade}</p>
+                        <p className="text-sm text-gray-900">{(suspeito as any).nacionalidade}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-500">Relação com a Vítima</label>
                         <p className="text-sm text-gray-900">{suspeito.relacaoVitima}</p>
                       </div>
                     </div>
-                    {suspeito.descricao && (
+                    {(suspeito as any).descricao && (
                       <div className="mt-3">
                         <label className="text-sm font-medium text-gray-500">Descrição</label>
-                        <p className="text-sm text-gray-700 leading-relaxed">{suspeito.descricao}</p>
+                        <p className="text-sm text-gray-700 leading-relaxed">{(suspeito as any).descricao}</p>
                       </div>
                     )}
                   </div>
@@ -517,7 +463,7 @@ export default function DetalheDenunciaPage() {
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {denuncia.evidencias.map((evidencia, index) => (
+                {denuncia.evidencias.map((evidencia: any, index: number) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-gray-900">
@@ -554,29 +500,29 @@ export default function DetalheDenunciaPage() {
               Denunciante
             </h2>
             
-            {denuncia.denunciante.anonimo ? (
+            {denuncia.denunciante?.anonimo ? (
               <div className="text-center py-4">
                 <Shield className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm text-gray-500">Denúncia Anônima</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {denuncia.denunciante.nome && (
+                {denuncia.denunciante?.nome && (
                   <div>
                     <label className="text-sm font-medium text-gray-500">Nome</label>
-                    <p className="text-sm text-gray-900">{denuncia.denunciante.nome}</p>
+                    <p className="text-sm text-gray-900">{denuncia.denunciante?.nome}</p>
                   </div>
                 )}
-                {denuncia.denunciante.telefone && (
+                {denuncia.denunciante?.telefone && (
                   <div className="flex items-center">
                     <Phone className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-900">{denuncia.denunciante.telefone}</span>
+                    <span className="text-sm text-gray-900">{denuncia.denunciante?.telefone}</span>
                   </div>
                 )}
-                {denuncia.denunciante.localizacao && (
+                {denuncia.denunciante?.localizacao && (
                   <div className="flex items-center">
                     <MapPin className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-900">{denuncia.denunciante.localizacao}</span>
+                    <span className="text-sm text-gray-900">{denuncia.denunciante?.localizacao}</span>
                   </div>
                 )}
               </div>
@@ -595,15 +541,17 @@ export default function DetalheDenunciaPage() {
                 <div>
                   <label className="text-sm font-medium text-gray-500">Instituição de Origem</label>
                   <p className="text-sm text-gray-900">
-                    {denuncia.instituicaoOrigemId.nome} ({denuncia.instituicaoOrigemId.sigla})
+                    {typeof denuncia.instituicaoOrigemId === 'object' && 'nome' in denuncia.instituicaoOrigemId
+                      ? `${(denuncia.instituicaoOrigemId as any).nome} (${(denuncia.instituicaoOrigemId as any).sigla || ''})`
+                      : 'Instituição não informada'}
                   </p>
                 </div>
               )}
               {denuncia.usuarioCriadorId && (
                 <div>
                   <label className="text-sm font-medium text-gray-500">Criado por</label>
-                  <p className="text-sm text-gray-900">{denuncia.usuarioCriadorId.nome}</p>
-                  <p className="text-xs text-gray-500">{denuncia.usuarioCriadorId.email}</p>
+                  <p className="text-sm text-gray-900">{typeof denuncia.usuarioCriadorId === 'object' && (denuncia.usuarioCriadorId as any).nome || '-'}</p>
+                  <p className="text-xs text-gray-500">{typeof denuncia.usuarioCriadorId === 'object' && (denuncia.usuarioCriadorId as any).email || '-'}</p>
                 </div>
               )}
             </div>
@@ -764,7 +712,7 @@ export default function DetalheDenunciaPage() {
                 Confirmar Tráfico Humano
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                <strong>ATENÇÃO:</strong> Esta ação confirma que o caso é de tráfico humano e o encerra como <strong>CASO_ENCERRADO</strong>.
+                <strong>ATENÇÃO:</strong> Esta ação confirma que o caso é de tráfico humano e o encerra como <strong>TRAFICO_HUMANO_CONFIRMADO</strong>.
               </p>
               <div className="bg-purple-50 border border-purple-200 rounded-md p-3 mb-4">
                 <p className="text-sm text-purple-800">

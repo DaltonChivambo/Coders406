@@ -16,7 +16,7 @@ import {
 
 export default function SubmeterCasosPage() {
   const { denuncias, isLoading, error, refetch } = useDenuncias({
-    status: StatusDenuncia.EM_ANALISE
+    status: [StatusDenuncia.AGUARDANDO_TRIAGEM]
   });
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -165,9 +165,9 @@ export default function SubmeterCasosPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-3">
-                          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                             <AlertTriangle className="w-4 h-4 mr-1" />
-                            <span>Em Análise</span>
+                            <span>Aguardando Triagem</span>
                           </div>
                           <div className="text-sm text-gray-500">
                             Código: {denuncia.codigoRastreio}
@@ -183,7 +183,9 @@ export default function SubmeterCasosPage() {
                         <div className="flex items-center text-sm text-gray-600">
                           <User className="w-4 h-4 mr-2 text-gray-400" />
                           <span>
-                            {denuncia.usuarioCriadorId?.nome || 'Denúncia Pública'}
+                            {typeof denuncia.usuarioCriadorId === 'object' && denuncia.usuarioCriadorId && 'nome' in denuncia.usuarioCriadorId
+                              ? (denuncia.usuarioCriadorId as any).nome
+                              : 'Denúncia Pública'}
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">

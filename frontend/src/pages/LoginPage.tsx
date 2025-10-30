@@ -56,13 +56,13 @@ export default function LoginPage() {
       
       // Mapear os dados do usuário para o formato esperado pelo useAuth
       const userData = {
-        id: response.user.id,
+        id: (response.user as any).id || (response.user as any)._id,
         nome: response.user.nome,
         email: response.user.email,
         perfil: response.user.perfil,
-        instituicaoId: response.user.instituicao.id,
+        instituicaoId: (response.user.instituicao as any).id || (response.user.instituicao as any)._id,
         instituicaoNome: response.user.instituicao.nome,
-        ativo: response.user.ativo
+        ativo: (response.user as any).ativo
       };
       
       login(userData, response.token);
@@ -122,11 +122,8 @@ export default function LoginPage() {
               </div>
               
               <h1 className="text-2xl font-bold text-white mb-2">
-                HUMAI
+                SafePath
               </h1>
-              <p className="text-blue-100 text-sm">
-                Sistema de Monitoramento de Tráfico Humano
-              </p>
             </div>
 
             {/* Form */}

@@ -120,7 +120,7 @@ export const getAllDenuncias = async (req: IAuthRequest, res: Response): Promise
         'SUBMETIDO_AUTORIDADE',
         'EM_INVESTIGACAO',
         'ENCAMINHADO_JUSTICA',
-        'CASO_ENCERRADO',
+        'TRAFICO_HUMANO_CONFIRMADO',
         'ARQUIVADO'
       ]};
     } else {
@@ -791,13 +791,14 @@ export const createDenunciaPublica = async (req: Request, res: Response): Promis
     
     // Adicionar campos obrigatórios para denúncia pública
     denunciaData.nivelRisco = 'MEDIO'; // Valor padrão
-    denunciaData.status = 'AGUARDANDO_TRIAGEM'; // Status inicial
+    // Enviar diretamente às autoridades para fluxo público
+    denunciaData.status = 'SUBMETIDO_AUTORIDADE';
     denunciaData.tipoDenuncia = 'PUBLICA'; // Sempre pública
     denunciaData.canalDenuncia = 'WEB'; // Sempre web para denúncias públicas
     
-    // Buscar instituição receptora padrão (ONG)
+    // Buscar autoridade (PGR) para envio direto
     const { Instituicao } = await import('../models');
-    const instituicaoReceptora = await Instituicao.findOne({ tipo: 'RECEPTORA' });
+    const instituicaoReceptora = await Instituicao.findOne({ tipo: 'AUTORIDADE' });
     
     if (!instituicaoReceptora) {
       res.status(500).json({
@@ -807,7 +808,7 @@ export const createDenunciaPublica = async (req: Request, res: Response): Promis
       return;
     }
     
-    // Configurar dados da denúncia pública
+    // Configurar dados da denúncia pública (envio direto à autoridade)
     denunciaData.instituicaoOrigemId = instituicaoReceptora._id;
     denunciaData.instituicoesComAcesso = [instituicaoReceptora._id];
     
@@ -825,7 +826,7 @@ export const createDenunciaPublica = async (req: Request, res: Response): Promis
     const historico = new Historico({
       denunciaId: denuncia._id,
       acao: 'CRIADA',
-      descricao: 'Denúncia pública criada',
+      descricao: 'Denúncia pública criada e submetida às autoridades',
       usuarioId: null, // Sem usuário para denúncias públicas
       data: new Date()
     });

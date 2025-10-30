@@ -16,15 +16,13 @@ import {
 export default function AnalisePendentePage() {
   const navigate = useNavigate();
   const { denuncias, isLoading, error } = useDenuncias({
-    status: StatusDenuncia.AGUARDANDO_TRIAGEM
+    status: [StatusDenuncia.AGUARDANDO_TRIAGEM]
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case StatusDenuncia.AGUARDANDO_TRIAGEM:
         return 'bg-yellow-100 text-yellow-800';
-      case StatusDenuncia.EM_ANALISE:
-        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -34,8 +32,6 @@ export default function AnalisePendentePage() {
     switch (status) {
       case StatusDenuncia.AGUARDANDO_TRIAGEM:
         return <Clock className="w-4 h-4" />;
-      case StatusDenuncia.EM_ANALISE:
-        return <AlertTriangle className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
     }
@@ -119,7 +115,9 @@ export default function AnalisePendentePage() {
                   <div className="flex items-center text-sm text-gray-600">
                     <User className="w-4 h-4 mr-2 text-gray-400" />
                     <span>
-                      {denuncia.usuarioCriadorId?.nome || 'Denúncia Pública'}
+                      {typeof denuncia.usuarioCriadorId === 'object' && denuncia.usuarioCriadorId && 'nome' in denuncia.usuarioCriadorId
+                        ? (denuncia.usuarioCriadorId as any).nome
+                        : 'Denúncia Pública'}
                     </span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">

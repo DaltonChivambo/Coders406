@@ -484,7 +484,7 @@ DenunciaSchema.pre('save', function(next) {
 
 // Método para calcular tempo de resolução
 DenunciaSchema.methods.calcularTempoResolucao = function() {
-  if (this.status === StatusDenuncia.CASO_ENCERRADO && this.dataRegistro) {
+  if (this.status === StatusDenuncia.TRAFICO_HUMANO_CONFIRMADO && this.dataRegistro) {
     const inicio = this.dataRegistro;
     const fim = this.dataUltimaAtualizacao || new Date();
     this.tempoResolucao = Math.ceil((fim.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));

@@ -405,6 +405,7 @@ export interface ILoginResponse {
     nome: string;
     email: string;
     perfil: PerfilUsuario;
+    ativo: boolean;
     instituicao: {
       id: string;
       nome: string;

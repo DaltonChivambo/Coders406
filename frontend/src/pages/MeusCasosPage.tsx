@@ -15,15 +15,13 @@ import {
 
 export default function MeusCasosPage() {
   const { denuncias, isLoading, error } = useDenuncias({
-    status: StatusDenuncia.EM_ANALISE
+    status: [StatusDenuncia.EM_INVESTIGACAO]
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case StatusDenuncia.EM_ANALISE:
+      case StatusDenuncia.EM_INVESTIGACAO:
         return 'bg-blue-100 text-blue-800';
-      case StatusDenuncia.AGUARDANDO_INFORMACOES:
-        return 'bg-orange-100 text-orange-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -31,10 +29,8 @@ export default function MeusCasosPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case StatusDenuncia.EM_ANALISE:
+      case StatusDenuncia.EM_INVESTIGACAO:
         return <AlertTriangle className="w-4 h-4" />;
-      case StatusDenuncia.AGUARDANDO_INFORMACOES:
-        return <Clock className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
     }
@@ -119,7 +115,9 @@ export default function MeusCasosPage() {
                   <div className="flex items-center text-sm text-gray-600">
                     <User className="w-4 h-4 mr-2 text-gray-400" />
                     <span>
-                      {denuncia.usuarioCriadorId?.nome || 'Denúncia Pública'}
+                      {typeof denuncia.usuarioCriadorId === 'object' && denuncia.usuarioCriadorId && 'nome' in denuncia.usuarioCriadorId
+                        ? (denuncia.usuarioCriadorId as any).nome
+                        : 'Denúncia Pública'}
                     </span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">

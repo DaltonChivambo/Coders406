@@ -9,8 +9,8 @@ import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
 import DenunciaPublicaPage from '@/pages/DenunciaPublicaPage';
 import RepositorioPage from '@/pages/RepositorioPage';
+import RelatoriosPublicosPage from '@/pages/RelatoriosPublicosPage';
 import RastreioInternoPage from '@/pages/RastreioInternoPage';
-import VerificarOportunidadePage from '@/pages/VerificarOportunidadePage';
 import VerificarStatusPage from '@/pages/VerificarStatusPage';
 import NovaDenunciaPage from '@/pages/NovaDenunciaPage';
 import AnalisePendentePage from '@/pages/AnalisePendentePage';
@@ -61,9 +61,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/denuncia-publica" element={<DenunciaPublicaPage />} />
-            <Route path="/verificar-oportunidade" element={<VerificarOportunidadePage />} />
             <Route path="/verificar-status" element={<VerificarStatusPage />} />
-            <Route path="/relatorios-publicos" element={<RepositorioPage />} />
+            <Route path="/relatorios-publicos" element={<RelatoriosPublicosPage />} />
 
             {/* Rotas protegidas */}
             <Route
