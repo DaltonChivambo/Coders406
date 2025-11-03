@@ -24,25 +24,25 @@ router.get('/tipo/:tipo', getInstituicoesByTipo);
 // GET /api/instituicoes/:id
 router.get('/:id', getInstituicaoById);
 
-// POST /api/instituicoes (apenas coordenadores)
+// POST /api/instituicoes (apenas gestor do sistema)
 router.post('/', 
   authenticateToken, 
-  requireRole(PerfilUsuario.COORDENADOR_ASSOCIACAO),
+  requireRole(PerfilUsuario.GESTOR_SISTEMA),
   validate(createInstitutionSchema),
   createInstituicao
 );
 
-// PUT /api/instituicoes/:id (apenas coordenadores)
+// PUT /api/instituicoes/:id (apenas gestor do sistema)
 router.put('/:id', 
   authenticateToken, 
-  requireRole(PerfilUsuario.COORDENADOR_ASSOCIACAO),
+  requireRole(PerfilUsuario.GESTOR_SISTEMA),
   updateInstituicao
 );
 
-// DELETE /api/instituicoes/:id (apenas coordenadores)
+// DELETE /api/instituicoes/:id (apenas gestor do sistema)
 router.delete('/:id', 
   authenticateToken, 
-  requireRole(PerfilUsuario.COORDENADOR_ASSOCIACAO),
+  requireRole(PerfilUsuario.GESTOR_SISTEMA),
   deleteInstituicao
 );
 

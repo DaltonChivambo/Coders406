@@ -56,17 +56,17 @@ UsuarioSchema.index({ ativo: 1 });
 UsuarioSchema.index({ instituicaoId: 1, perfil: 1 });
 
 // Hash da senha antes de salvar
-UsuarioSchema.pre('save', async function(next) {
-  if (!this.isModified('senha')) return next();
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.senha = await bcrypt.hash(this.senha, salt);
-    next();
-  } catch (error) {
-    next(error as Error);
-  }
-});
+// UsuarioSchema.pre('save', async function(next) {
+//   if (!this.isModified('senha')) return next();
+//   
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     this.senha = await bcrypt.hash(this.senha, salt);
+//     next();
+//   } catch (error) {
+//     next(error as Error);
+//   }
+// });
 
 // Método para comparar senhas
 UsuarioSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {

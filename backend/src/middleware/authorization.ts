@@ -59,7 +59,7 @@ export const canAccessDenuncia = async (req: IAuthRequest, res: Response, next: 
       return;
     }
 
-    const { denunciaId } = req.params;
+    const denunciaId = req.params.id || req.params.denunciaId;
     
     if (!denunciaId) {
       res.status(400).json({ 
@@ -82,11 +82,28 @@ export const canAccessDenuncia = async (req: IAuthRequest, res: Response, next: 
       return;
     }
 
-    // Coordenador da associação pode ver todas as denúncias
-    if (req.user.perfil === PerfilUsuario.COORDENADOR_ASSOCIACAO) {
+    // Gestor do sistema pode ver todas as denúncias
+    if (req.user.perfil === PerfilUsuario.GESTOR_SISTEMA) {
       req.denuncia = denuncia;
       next();
       return;
+    }
+
+    // PGR (AUTORIDADE) pode ver denúncias submetidas para autoridades
+    if (req.user.perfil === PerfilUsuario.AUTORIDADE) {
+      const statusPermitidos = [
+        'SUBMETIDO_AUTORIDADE',
+        'EM_INVESTIGACAO',
+        'ENCAMINHADO_JUSTICA',
+        'TRAFICO_HUMANO_CONFIRMADO',
+        'ARQUIVADO'
+      ];
+      
+      if (statusPermitidos.includes(denuncia.status)) {
+        req.denuncia = denuncia;
+        next();
+        return;
+      }
     }
 
     // Verificar se o usuário tem acesso baseado na visibilidade
@@ -128,8 +145,8 @@ export const canModifyDenuncia = (req: IAuthRequest, res: Response, next: NextFu
   const { perfil, instituicaoId } = req.user;
   const denuncia = req.denuncia;
 
-  // Coordenador da associação pode modificar qualquer denúncia
-  if (perfil === PerfilUsuario.COORDENADOR_ASSOCIACAO) {
+  // Gestor do sistema pode modificar qualquer denúncia
+  if (perfil === PerfilUsuario.GESTOR_SISTEMA) {
     next();
     return;
   }
@@ -143,22 +160,11 @@ export const canModifyDenuncia = (req: IAuthRequest, res: Response, next: NextFu
     // Analista da instituição de origem (para análise)
     (perfil === PerfilUsuario.ANALISTA && 
      denuncia.instituicaoOrigemId.toString() === instituicaoId &&
-     ['INCOMPLETA', 'SUSPEITA', 'PROVAVEL', 'DESCARTADA', 'EM_INVESTIGACAO_INTERNA'].includes(denuncia.status)) ||
+     ['AGUARDANDO_TRIAGEM', 'EM_ANALISE', 'AGUARDANDO_INFORMACOES'].includes(denuncia.status)) ||
     
-    // Supervisor da instituição de origem (para supervisão)
-    (perfil === PerfilUsuario.SUPERVISOR && 
-     denuncia.instituicaoOrigemId.toString() === instituicaoId) ||
-    
-    // Investigador da instituição de destino (para investigação)
-    (perfil === PerfilUsuario.INVESTIGADOR && 
-     denuncia.instituicaoDestinoId && 
-     denuncia.instituicaoDestinoId.toString() === instituicaoId &&
-     ['SENDO_PROCESSADO_AUTORIDADES', 'EM_TRANSITO_AGENCIAS'].includes(denuncia.status)) ||
-    
-    // Coordenador local da instituição de destino
-    (perfil === PerfilUsuario.COORDENADOR_LOCAL && 
-     denuncia.instituicaoDestinoId && 
-     denuncia.instituicaoDestinoId.toString() === instituicaoId);
+    // Autoridade (PGR) para casos submetidos
+    (perfil === PerfilUsuario.AUTORIDADE && 
+     ['SUBMETIDO_AUTORIDADE', 'EM_INVESTIGACAO', 'ENCAMINHADO_JUSTICA', 'CASO_ENCERRADO', 'ARQUIVADO'].includes(denuncia.status));
 
   if (!canModify) {
     res.status(403).json({ 
@@ -186,10 +192,8 @@ export const canViewSensitiveData = (req: IAuthRequest, res: Response, next: Nex
   // Perfis que podem ver dados sensíveis
   const canViewSensitive = [
     PerfilUsuario.ANALISTA,
-    PerfilUsuario.SUPERVISOR,
-    PerfilUsuario.INVESTIGADOR,
-    PerfilUsuario.COORDENADOR_LOCAL,
-    PerfilUsuario.COORDENADOR_ASSOCIACAO
+    PerfilUsuario.AUTORIDADE,
+    PerfilUsuario.GESTOR_SISTEMA
   ].includes(perfil);
 
   if (!canViewSensitive) {

@@ -7,7 +7,9 @@ import {
   updateStatus,
   uploadEvidencias,
   getEvidencia,
-  getDenunciaByCodigo
+  getDenunciaByCodigo,
+  getEstatisticasMensais,
+  adicionarObservacao
 } from '../controllers/denunciaController';
 import { authenticateToken } from '../middleware/auth';
 import { canAccessDenuncia, canModifyDenuncia } from '../middleware/authorization';
@@ -16,8 +18,8 @@ import { createDenunciaSchema, updateStatusSchema } from '../middleware/validati
 
 const router = Router();
 
-// POST /api/denuncias - Criar denúncia (público)
-router.post('/', validate(createDenunciaSchema), createDenuncia);
+// POST /api/denuncias - Criar denúncia (autenticado)
+router.post('/', authenticateToken, validate(createDenunciaSchema), createDenuncia);
 
 // GET /api/denuncias - Listar denúncias (autenticado)
 router.get('/', authenticateToken, getAllDenuncias);
@@ -52,6 +54,19 @@ router.post('/:id/evidencias',
 router.get('/uploads/:instituicaoId/:denunciaId/:filename', 
   authenticateToken, 
   getEvidencia
+);
+
+// POST /api/denuncias/:id/observacoes - Adicionar observação (autenticado)
+router.post('/:id/observacoes', 
+  authenticateToken, 
+  canAccessDenuncia, 
+  adicionarObservacao
+);
+
+// GET /api/denuncias/estatisticas/mensais - Estatísticas mensais (autenticado)
+router.get('/estatisticas/mensais', 
+  authenticateToken, 
+  getEstatisticasMensais
 );
 
 export default router;
